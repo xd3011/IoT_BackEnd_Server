@@ -7,9 +7,9 @@ import { router } from "./routes/index"
 dotenv.config();
 const PORT = process.env.PORT || 5000;
 
-// Create router
-// const route = require("./routes");
-// const db = require("./config/db");
+// Connect Database
+const database = require("./configs/database/index");
+database.connect();
 
 app.use(express.json());
 app.use(
