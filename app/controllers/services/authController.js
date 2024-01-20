@@ -1,5 +1,7 @@
 import { User } from "../../models/User";
 import { bcrypt } from "bcrypt";
+import { jwt } from "jsonwebtoken";
+import { tokenController } from "./tokenController";
 
 // [POST] Register Account
 const register = async (req, res) => {
@@ -33,4 +35,41 @@ const register = async (req, res) => {
     }
 };
 
-module.exports = { register }
+// Generate Access Token
+const generateAccessToken = (user) => {
+    const { id, user_name, role } = user;
+    return jwt.sign({ uid: id, user_name, role }, process.env.JWT_ACCESS_KEY, { expiresIn: 60 * 10 });
+};
+
+// Generate Refresh Token
+const generateRefreshToken = (user) => {
+    const { id, user_name, role } = user;
+    return jwt.sign({ uid: id, user_name, role }, process.env.JWT_REFRESH_KEY, { expiresIn: "1d" });
+};
+
+// [POST] Login Account
+const login = async (req, res) => {
+    try {
+        const { user_name, pass_word } = req.body;
+        // Verify Username
+        const user = await User.findOne({ user_name });
+        if (!user) {
+            return res.json("Wrong username");
+        }
+        // Verify Password
+        const validPassword = await bcrypt.compare(pass_word, user.pass_word);
+        if (!validPassword) {
+            return res.json("Wrong password");
+        }
+        // Generate Token
+        const accessToken = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
+        tokenController.createToken(user._id, refreshToken);
+        return res.json({ accessToken, refreshToken, uid: user._id });
+    } catch (error) {
+        console.error("Error during login:", error);
+        return res.status(500).json("Internal Server Error");
+    }
+};
+
+module.exports = { register, login }
