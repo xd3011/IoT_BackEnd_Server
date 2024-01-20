@@ -4,7 +4,7 @@ const homeRouter = require("./home");
 const roomRouter = require("./room");
 const deviceRouter = require("./device");
 
-function router(app) {
+function route(app) {
 
     // Create router for authentication
     app.use("/api/auth", authRouter);
@@ -22,4 +22,4 @@ function router(app) {
     app.use("/api/device", deviceRouter);
 }
 
-module.exports = { router };
+module.exports = { route };

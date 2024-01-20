@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const dotenv = require("dotenv");
-import { router } from "./routes/index"
+import { route } from "./routes/index"
 
 // Config .env
 dotenv.config();
@@ -18,8 +18,6 @@ app.use(
     })
 );
 
-router(app);
-
-// route(app);
+route(app);
 
 app.listen(PORT, () => console.log(`Server running on port http://localhost:${PORT}/api/auth/login`));
