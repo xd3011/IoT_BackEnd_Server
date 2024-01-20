@@ -14,7 +14,7 @@ router.post("/login", authController.login);
 router.post("/refreshToken", authController.refreshToken);
 
 // [Post] Logout
-router.post("/logout");
+router.post("/logout", authController.logout);
 
 // [Post] Edit Password
 router.post("/editPassword");

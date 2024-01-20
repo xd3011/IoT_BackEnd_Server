@@ -97,4 +97,16 @@ const refreshToken = async (req, res) => {
     }
 };
 
-module.exports = { register, login, refreshToken }
+const logout = async (req, res) => {
+    try {
+        const { uid } = req.body;
+        // Delete the refresh token from the storage
+        tokenController.deleteToken(uid);
+        res.status(200).json("Logged out");
+    } catch (error) {
+        console.error("Error during logout:", error);
+        res.status(500).json("Internal Server Error");
+    }
+};
+
+module.exports = { register, login, refreshToken, logout }
