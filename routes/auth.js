@@ -3,15 +3,15 @@ const router = express.Router();
 import authController from "../app/controllers/services/authController"
 
 // [Post] Register Account
-router.post("/register", authController);
+router.post("/register", authController.register);
 
 // [Post] Confirm Account
 
 // [Post] Login
-router.post("/login");
+router.post("/login", authController.login);
 
 // [Post] Refresh Token
-router.post("/refreshToken");
+router.post("/refreshToken", authController.refreshToken);
 
 // [Post] Logout
 router.post("/logout");

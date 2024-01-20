@@ -9,4 +9,12 @@ const createToken = (uid, refreshToken) => {
     console.log("Save Token Success");
 }
 
-module.exports = { createToken }
+const getToken = async (uid) => {
+    return token = await Token.findOne({ user_id: uid });
+}
+
+const deleteToken = (uid) => {
+
+}
+
+module.exports = { createToken, getToken, deleteToken }

@@ -72,4 +72,29 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { register, login }
+const refreshToken = async (req, res) => {
+    try {
+        const { uid, refreshToken } = req.body;
+        if (!refreshToken) {
+            return res.json("You're not authenticated");
+        }
+        const storedRefreshToken = tokenController.getToken(uid).refresh_token;
+        if (storedRefreshToken !== refreshToken) {
+            return res.json("Refresh Token is not valid");
+        }
+        jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, (err, user) => {
+            if (err) {
+                tokenController.deleteToken(uid);
+                return res.json(err);
+            }
+            // Generate new tokens
+            const newAccessToken = generateAccessToken(user);
+            res.status(200).json({ accessToken: newAccessToken });
+        });
+    } catch (error) {
+        console.error("Error during token refresh:", error);
+        res.status(500).json("Internal Server Error");
+    }
+};
+
+module.exports = { register, login, refreshToken }
