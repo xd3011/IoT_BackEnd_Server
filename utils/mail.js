@@ -34,7 +34,7 @@ const mailSendResetPassword = async (email, otp) => {
 
 const mailSendConfirmAccount = async (email, uid) => {
     // Construct the confirmation URL
-    const confirmUrl = `http://localhost:5000/confirmAccount/${uid}`;
+    const confirmUrl = `http://localhost:5000/api/auth/confirmAccount/${uid}`;
     // Email content
     const mailOptions = {
         from: 'Home_IoT',

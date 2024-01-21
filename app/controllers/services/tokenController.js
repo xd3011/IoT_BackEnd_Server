@@ -1,4 +1,4 @@
-import { Token } from "../../models/Token";
+import Token from "../../models/Token";
 
 const createToken = (uid, refreshToken) => {
     const newToken = new Token({
@@ -13,23 +13,32 @@ const getToken = async (uid) => {
     return token = await Token.findOne({ user_id: uid });
 }
 
-const deleteToken = (uid) => {
+const deleteToken = async (uid) => {
+    console.log(uid);
+    try {
+        const deletedToken = await Token.findOneAndDelete({ user_id: uid });
+        if (deletedToken) {
+            console.log("Delete Token Success");
+        } else {
+            console.log("Token not found");
+        }
+    } catch (error) {
+        console.error("Error deleting token:", error);
+    }
+};
 
-}
 
-const createOtp = (uid) => {
+const createOtp = async (uid) => {
     // Generate a random OTP with 6 digits
     const otp = Math.floor(100000 + Math.random() * 900000);
     const currentTime = Date.now();
     // Add 5 minutes (300,000 milliseconds) to get the expiration time
     const expirationTime = currentTime + 300000;
     // Create a new Token object with the expiration time
-    const newOtp = new Token({
-        user_id: uid,
-        otp: otp,
-        time: expirationTime,
-    });
-    newOtp.save();
+    const token = await Token.findOne({ user_id: uid });
+    token.otp = otp;
+    token.time = expirationTime;
+    token.save();
     return otp;
 };
 
@@ -62,7 +71,10 @@ const checkOtp = async (uid, userEnteredOtp) => {
 
 
 const deleteOtp = async (uid) => {
-    await Token.deleteOne({ user_id: uid });
+    const token = await Token.findOne({ user_id: uid });
+    token.otp = "";
+    token.time = "";
+    token.save();
 }
 
 module.exports = { createToken, getToken, deleteToken, createOtp, checkOtp }

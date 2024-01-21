@@ -1,25 +1,27 @@
-import { User } from "../../models/User";
-import { bcrypt } from "bcrypt";
-import { jwt } from "jsonwebtoken";
-import { tokenController } from "./tokenController";
-import { mailSendResetPassword } from "../../../utils/mail";
+import User from "../../models/User";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import tokenController from "./tokenController";
+import { mailSendResetPassword, mailSendConfirmAccount } from "../../../utils/mail";
 
 // [POST] Register Account
 const register = async (req, res) => {
     try {
-        const { email, phone, user_name, password, name } = req.body;
+        const { email, phone, user_name, pass_word, name } = req.body;
+
         // Validate that either email or phone is provided
         if (!email && !phone) {
             return res.status(400).send("Email or phone is required for registration.");
         }
-        // Determine the login field based on provided data
-        const loginField = email ? { email } : { phone };
+
         // Create password hash
-        const salt = await bcrypt.getSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(pass_word, salt);
+
         // Create and save User
         const newUser = new User({
-            ...loginField,
+            email,
+            phone,
             user_name,
             pass_word: hashedPassword,
             verify: false,
@@ -28,7 +30,15 @@ const register = async (req, res) => {
             home_list: [],
         });
         await newUser.save();
-        mailSendConfirmAccount(newUser._id);
+
+        // Send confirmation email if email is provided
+        if (email) {
+            mailSendConfirmAccount(email, newUser._id);
+        }
+        else {
+            // Send SMS Link
+        }
+
         res.status(200).send("Confirm Account");
     } catch (error) {
         // Handle duplicate user_name error
@@ -39,6 +49,7 @@ const register = async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 };
+
 
 const confirmAccount = async (req, res) => {
     try {
@@ -65,14 +76,34 @@ const confirmAccount = async (req, res) => {
 
 // Generate Access Token
 const generateAccessToken = (user) => {
-    const { id, user_name, role } = user;
-    return jwt.sign({ uid: id, user_name, role }, process.env.JWT_ACCESS_KEY, { expiresIn: 60 * 10 });
+    const accessToken = jwt.sign(
+        {
+            uid: user.id,
+            user_name: user.user_name,
+            admin: user.admin,
+        },
+        process.env.JWT_ACCESS_KEY,
+        {
+            expiresIn: "1h",
+        }
+    );
+    return accessToken;
 };
 
 // Generate Refresh Token
 const generateRefreshToken = (user) => {
-    const { id, user_name, role } = user;
-    return jwt.sign({ uid: id, user_name, role }, process.env.JWT_REFRESH_KEY, { expiresIn: "1d" });
+    const refreshToken = jwt.sign(
+        {
+            uid: user.id,
+            user_name: user.user_name,
+            admin: user.admin,
+        },
+        process.env.JWT_REFRESH_KEY,
+        {
+            expiresIn: "30d", // 30 days
+        }
+    );
+    return refreshToken;
 };
 
 // [POST] Login Account
@@ -87,6 +118,7 @@ const login = async (req, res) => {
         }
         // Check the password
         const validPassword = await bcrypt.compare(pass_word, user.pass_word);
+
         if (!validPassword) {
             return res.status(401).json("Wrong password");
         }
