@@ -2,6 +2,7 @@ import { User } from "../../models/User";
 import { bcrypt } from "bcrypt";
 import { jwt } from "jsonwebtoken";
 import { tokenController } from "./tokenController";
+import { mailSendResetPassword } from "../../../utils/mail";
 
 // [POST] Register Account
 const register = async (req, res) => {
@@ -72,34 +73,36 @@ const login = async (req, res) => {
     }
 };
 
+// [POST] Refresh Token
 const refreshToken = async (req, res) => {
     try {
-        const { uid, refreshToken } = req.body;
+        const { uid } = req.params;
+        const { refreshToken } = req.body;
+        // Check if refreshToken is provided
         if (!refreshToken) {
-            return res.json("You're not authenticated");
+            return res.status(401).json("You're not authenticated");
         }
-        const storedRefreshToken = tokenController.getToken(uid).refresh_token;
-        if (storedRefreshToken !== refreshToken) {
-            return res.json("Refresh Token is not valid");
+        const storedRefreshToken = tokenController.getToken(uid)?.refresh_token;
+        // Check if stored refresh token is valid
+        if (!storedRefreshToken || storedRefreshToken !== refreshToken) {
+            return res.status(401).json("Refresh Token is not valid");
         }
-        jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, (err, user) => {
-            if (err) {
-                tokenController.deleteToken(uid);
-                return res.json(err);
-            }
-            // Generate new tokens
-            const newAccessToken = generateAccessToken(user);
-            res.status(200).json({ accessToken: newAccessToken });
-        });
+        const decodedUser = jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY);
+        // Generate new access token
+        const newAccessToken = generateAccessToken(decodedUser);
+        res.status(200).json({ accessToken: newAccessToken });
     } catch (error) {
+        // Handle internal server error and provide more details
         console.error("Error during token refresh:", error);
         res.status(500).json("Internal Server Error");
     }
 };
 
+
+// [POST] Logout Account
 const logout = async (req, res) => {
     try {
-        const { uid } = req.body;
+        const { uid } = req.params;
         // Delete the refresh token from the storage
         tokenController.deleteToken(uid);
         res.status(200).json("Logged out");
@@ -109,4 +112,74 @@ const logout = async (req, res) => {
     }
 };
 
-module.exports = { register, login, refreshToken, logout }
+const editPassword = async (req, res) => {
+    try {
+        const { uid } = req.params;
+        const { oldPassword, newPassword } = req.body;
+        const user = await User.findById(uid);
+        if (!user) {
+            return res.status(404).json("Invalid ID");
+        }
+        // Validate old password
+        const validPassword = await bcrypt.compare(oldPassword, user.pass_word);
+        if (!validPassword) {
+            return res.status(401).json("Wrong password");
+        }
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.pass_word = hashedPassword;
+        await user.save();
+        return res.status(200).json("Update Password Successfully");
+    } catch (error) {
+        // Handle errors and provide more details
+        console.error("Error during password update:", error);
+        res.status(500).json("Internal Server Error");
+    }
+};
+
+const forgotPassword = async (req, res) => {
+    try {
+        const { user_name, email, phone } = req.body;
+        // Find user by user_name
+        const user = await User.findOne({ user_name });
+        // Check if user exists
+        if (!user) {
+            return res.status(404).json("Invalid username");
+        }
+        // Check if email or phone matches the user's data
+        if (email && user.email !== email) {
+            return res.status(401).json("Invalid email");
+        }
+        if (phone && user.phone !== phone) {
+            return res.status(401).json("Invalid phone");
+        }
+        // Create OTP
+        const OTP = tokenController.createOtp(user._id);
+        mailSendResetPassword(user.email, OTP);
+        return res.status(200).json("Please check your email to retrieve your password");
+    } catch (error) {
+        // Handle errors and provide more details
+        console.error("Error during password reset:", error);
+        res.status(500).json("Internal Server Error");
+    }
+};
+
+const confirmForgotPassword = async (req, res) => {
+    try {
+        const { uid } = req.params;
+        const { OTP } = req.body;
+        const isOtpValid = await tokenController.checkOtp(uid, OTP);
+        if (!isOtpValid) {
+            return res.status(401).json("Invalid OTP");
+        }
+        // Add your logic for successful OTP verification here
+        return res.status(200).json("OTP verification successfully");
+    } catch (error) {
+        console.error("Error during OTP verification:", error);
+        return res.status(500).json("Internal Server Error");
+    }
+};
+
+
+
+module.exports = { register, login, refreshToken, logout, editPassword, forgotPassword, confirmForgotPassword }

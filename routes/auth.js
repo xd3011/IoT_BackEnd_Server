@@ -11,16 +11,19 @@ router.post("/register", authController.register);
 router.post("/login", authController.login);
 
 // [Post] Refresh Token
-router.post("/refreshToken", authController.refreshToken);
+router.post("/refreshToken/:uid", authController.refreshToken);
 
 // [Post] Logout
-router.post("/logout", authController.logout);
+router.post("/logout/:uid", authController.logout);
 
-// [Post] Edit Password
-router.post("/editPassword");
+// [Put] Edit Password
+router.put("/editPassword/:uid", authController.editPassword);
 
 // [Post] Forgot Password
-router.post("/forgotPassword");
+router.post("/forgotPassword", authController.forgotPassword);
+
+// [Post] Confirm Forgot Password
+router.post("/confirmForgotPassword/:uid", authController.confirmForgotPassword);
 
 router.get("/", (req, res) => {
     res.json("auth controller");
