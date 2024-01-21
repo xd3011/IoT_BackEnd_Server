@@ -32,4 +32,23 @@ const mailSendResetPassword = async (email, otp) => {
     }
 };
 
-module.exports = { mailSendResetPassword };
+const mailSendConfirmAccount = async (email, uid) => {
+    // Construct the confirmation URL
+    const confirmUrl = `http://localhost:5000/confirmAccount/${uid}`;
+    // Email content
+    const mailOptions = {
+        from: 'Home_IoT',
+        to: email,
+        subject: 'Confirm Account',
+        html: `Please click on the following link to confirm your account: <a href="${confirmUrl}">${confirmUrl}</a>`,
+    };
+    const transporter = createTransporter();
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email sent:', info.response);
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
+};
+
+module.exports = { mailSendResetPassword, mailSendConfirmAccount };

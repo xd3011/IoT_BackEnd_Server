@@ -1,17 +1,17 @@
 import mongoose from "mongoose";
 
-const Schema = mongoose.Schema;
+const { Schema, Types } = mongoose; // Destructure Types from mongoose
 
 const User = new Schema(
     {
         email: { type: String },
         phone: { type: String },
-        user_name: { type: String, require: true },
-        pass_word: { type: String, require: true },
+        user_name: { type: String, required: true },
+        pass_word: { type: String, required: true },
         verify: { type: Boolean },
         role: { type: String },
         // home_list: [{ type: ObjectId, ref: 'Home' }],
-        home_list: [{ type: ObjectId }],
+        home_list: [{ type: Types.ObjectId }], // Use Types.ObjectId
         name: { type: String },
     },
     {
@@ -19,4 +19,4 @@ const User = new Schema(
     }
 );
 
-module.exports = mongoose.model("User", User);
+export default mongoose.model("User", User);

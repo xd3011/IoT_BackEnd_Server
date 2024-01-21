@@ -28,13 +28,40 @@ const register = async (req, res) => {
             home_list: [],
         });
         await newUser.save();
-        // Send Confirm Email or Phone
+        mailSendConfirmAccount(newUser._id);
         res.status(200).send("Confirm Account");
     } catch (error) {
+        // Handle duplicate user_name error
+        if (error.code === 11000 && error.keyPattern.user_name) {
+            return res.status(409).send("Username already exists.");
+        }
         console.error("Error in registration:", error);
         res.status(500).send("Internal Server Error");
     }
 };
+
+const confirmAccount = async (req, res) => {
+    try {
+        // Extract user ID from request parameters
+        const { uid } = req.params;
+        // Find and update the user's verification status in the database
+        const updatedUser = await User.findByIdAndUpdate(
+            uid,
+            { verify: true },
+        );
+        // Check if the user exists
+        if (!updatedUser) {
+            return res.status(404).json("Account not found");
+        }
+        // Return success message after confirming the account
+        return res.status(200).json("Account Confirm Success");
+    } catch (error) {
+        // Handle any errors that may occur during the confirmation process
+        console.error("Error during account confirmation:", error);
+        return res.status(500).json("Internal Server Error");
+    }
+};
+
 
 // Generate Access Token
 const generateAccessToken = (user) => {
@@ -52,21 +79,28 @@ const generateRefreshToken = (user) => {
 const login = async (req, res) => {
     try {
         const { user_name, pass_word } = req.body;
-        // Verify Username
+        // Find user by username
         const user = await User.findOne({ user_name });
+        // Check the existence of the user
         if (!user) {
-            return res.json("Wrong username");
+            return res.status(401).json("Wrong username");
         }
-        // Verify Password
+        // Check the password
         const validPassword = await bcrypt.compare(pass_word, user.pass_word);
         if (!validPassword) {
-            return res.json("Wrong password");
+            return res.status(401).json("Wrong password");
         }
-        // Generate Token
+        // Check the verification status of the account
+        if (!user.verify) {
+            return res.status(401).json("Account is not verified");
+        }
+        // Generate access and refresh tokens
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
+        // Create and save the refresh token for future refreshment
         tokenController.createToken(user._id, refreshToken);
-        return res.json({ accessToken, refreshToken, uid: user._id });
+        // Return token information and user id
+        return res.status(200).json({ accessToken, refreshToken, uid: user._id });
     } catch (error) {
         console.error("Error during login:", error);
         return res.status(500).json("Internal Server Error");
@@ -182,4 +216,4 @@ const confirmForgotPassword = async (req, res) => {
 
 
 
-module.exports = { register, login, refreshToken, logout, editPassword, forgotPassword, confirmForgotPassword }
+module.exports = { register, login, refreshToken, logout, editPassword, forgotPassword, confirmForgotPassword, confirmAccount }

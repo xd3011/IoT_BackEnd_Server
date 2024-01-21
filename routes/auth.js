@@ -6,6 +6,7 @@ import authController from "../app/controllers/services/authController"
 router.post("/register", authController.register);
 
 // [Post] Confirm Account
+router.post("/confirmAccount/:uid", authController.confirmAccount);
 
 // [Post] Login
 router.post("/login", authController.login);
