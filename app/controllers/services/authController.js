@@ -220,9 +220,9 @@ const forgotPassword = async (req, res) => {
             return res.status(401).json("Invalid phone");
         }
         // Create OTP
-        const OTP = tokenController.createOtp(user._id);
+        const OTP = await tokenController.createOtp(user._id);
         mailSendResetPassword(user.email, OTP);
-        return res.status(200).json("Please check your email to retrieve your password");
+        return res.status(200).json({ message: "Please check your email to retrieve your password", uid: user._id });
     } catch (error) {
         // Handle errors and provide more details
         console.error("Error during password reset:", error);
@@ -245,7 +245,5 @@ const confirmForgotPassword = async (req, res) => {
         return res.status(500).json("Internal Server Error");
     }
 };
-
-
 
 module.exports = { register, login, refreshToken, logout, editPassword, forgotPassword, confirmForgotPassword, confirmAccount }

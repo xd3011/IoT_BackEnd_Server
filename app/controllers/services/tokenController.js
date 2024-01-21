@@ -14,7 +14,6 @@ const getToken = async (uid) => {
 }
 
 const deleteToken = async (uid) => {
-    console.log(uid);
     try {
         const deletedToken = await Token.findOneAndDelete({ user_id: uid });
         if (deletedToken) {
@@ -30,12 +29,21 @@ const deleteToken = async (uid) => {
 
 const createOtp = async (uid) => {
     // Generate a random OTP with 6 digits
-    const otp = Math.floor(100000 + Math.random() * 900000);
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const currentTime = Date.now();
     // Add 5 minutes (300,000 milliseconds) to get the expiration time
     const expirationTime = currentTime + 300000;
     // Create a new Token object with the expiration time
     const token = await Token.findOne({ user_id: uid });
+    if (!token) {
+        const newOtp = new Token({
+            user_id: uid,
+            otp: otp,
+            time: expirationTime
+        })
+        newOtp.save();
+        return otp;
+    }
     token.otp = otp;
     token.time = expirationTime;
     token.save();
@@ -53,10 +61,10 @@ const checkOtp = async (uid, userEnteredOtp) => {
             // Check if the OTP has expired (current time is greater than expiration time)
             if (currentTime <= storedOtpObject.time) {
                 // Delete the OTP to ensure it can't be used again
-                deleteOtp(uid);
+                deleteToken(uid);
                 return true;
             } else {
-                deleteOtp(uid);
+                deleteToken(uid);
                 return false;
             }
         } else {
@@ -68,13 +76,5 @@ const checkOtp = async (uid, userEnteredOtp) => {
         return false;
     }
 };
-
-
-const deleteOtp = async (uid) => {
-    const token = await Token.findOne({ user_id: uid });
-    token.otp = "";
-    token.time = "";
-    token.save();
-}
 
 module.exports = { createToken, getToken, deleteToken, createOtp, checkOtp }
