@@ -2,6 +2,7 @@ import User from "../../models/User";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import tokenController from "./tokenController";
+import otpController from "./otpController";
 import { mailSendResetPassword, mailSendConfirmAccount } from "../../../utils/mail";
 
 // [POST] Register Account
@@ -218,7 +219,7 @@ const forgotPassword = async (req, res) => {
             return res.status(401).json("Invalid phone");
         }
         // Create OTP
-        const OTP = await tokenController.createOtp(user._id);
+        const OTP = await otpController.createOtp(user._id);
         mailSendResetPassword(user.email, OTP);
         return res.status(200).json({ message: "Please check your email to retrieve your password", uid: user._id });
     } catch (error) {
@@ -232,7 +233,7 @@ const confirmForgotPassword = async (req, res) => {
     try {
         const { uid } = req.params;
         const { OTP } = req.body;
-        const isOtpValid = await tokenController.checkOtp(uid, OTP);
+        const isOtpValid = await otpController.checkOtp(uid, OTP);
         if (!isOtpValid) {
             return res.status(401).json("Invalid OTP");
         }
