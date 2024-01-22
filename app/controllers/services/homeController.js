@@ -20,7 +20,7 @@ const createHome = async (req, res) => {
 
 const getHome = async (req, res) => {
     try {
-        const { uid } = req.body;
+        const { uid } = req.params;
         // Assuming Home is your mongoose model
         const homes = await Home.find({ user_in_home: uid });
         if (!homes || homes.length === 0) {

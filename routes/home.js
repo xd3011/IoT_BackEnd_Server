@@ -6,10 +6,10 @@ import homeController from "../app/controllers/services/homeController"
 router.post("/create", homeController.createHome);
 
 // [Get] Get Home
-router.get("/", homeController.getHome);
+router.get("/:uid", homeController.getHome);
 
 // [Put] Edit Home
-router.post("/edit/:hid", homeController.editHome);
+router.put("/edit/:hid", homeController.editHome);
 
 // [Delete] Delete Home
 router.delete("/delete/:hid", homeController.deleteHome);
