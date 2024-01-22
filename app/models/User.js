@@ -11,7 +11,7 @@ const User = new Schema(
         verify: { type: Boolean },
         role: { type: String },
         // home_list: [{ type: ObjectId, ref: 'Home' }],
-        home_list: [{ type: Types.ObjectId }], // Use Types.ObjectId
+        home_list: [{ type: Types.ObjectId, ref: 'Home' }], // Use Types.ObjectId
         name: { type: String },
     },
     {

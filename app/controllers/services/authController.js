@@ -30,7 +30,6 @@ const register = async (req, res) => {
             home_list: [],
         });
         await newUser.save();
-
         // Send confirmation email if email is provided
         if (email) {
             mailSendConfirmAccount(email, newUser._id);
@@ -38,7 +37,6 @@ const register = async (req, res) => {
         else {
             // Send SMS Link
         }
-
         res.status(200).send("Confirm Account");
     } catch (error) {
         // Handle duplicate user_name error
