@@ -1,4 +1,4 @@
-import { } from "../../models/Room";
+import Room from "../../models/Room";
 
 const createRoom = async (req, res) => {
     try {
