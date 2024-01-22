@@ -40,4 +40,50 @@ const deleteUserFromHome = async (req, res) => {
     }
 };
 
-module.exports = { addUserFromHome, deleteUserFromHome }
+const getUser = async (req, res) => {
+    try {
+        const { uid } = req.body;
+        // Assuming User is your mongoose model
+        const user = await User.findById(uid);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        if (user.role === "admin") {
+            const users = await User.find();
+            if (!users) {
+                return res.status(404).json({ message: "No users found" });
+            }
+            return res.status(200).json(users);
+        } else {
+            return res.status(403).json({ message: "Permission denied. User is not an admin" });
+        }
+    } catch (error) {
+        console.error("Error fetching user(s):", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+const deleteUser = async (req, res) => {
+    try {
+        const { uid, delete_uid } = req.body;
+        // Assuming User is your mongoose model
+        const user = await User.findById(uid);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        if (user.role === "admin") {
+            const deleteUser = await User.findByIdAndDelete(delete_uid);
+            if (!deleteUser) {
+                return res.status(404).json({ message: "User to delete not found" });
+            }
+            return res.status(200).json({ message: "User deleted successfully", deletedUser: deleteUser });
+        } else {
+            return res.status(403).json({ message: "Permission denied. User is not an admin" });
+        }
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+module.exports = { addUserFromHome, deleteUserFromHome, getUser, deleteUser }
