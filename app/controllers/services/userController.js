@@ -3,8 +3,7 @@ import Home from '../../models/Home';
 
 const addUserFromHome = async (req, res) => {
     try {
-        const { uid } = req.user
-        const { hid } = req.body;
+        const { uid, hid } = req.body;
         // Assuming Home is your mongoose model
         const home = await Home.findById(hid);
         home.user_in_home.push(uid);

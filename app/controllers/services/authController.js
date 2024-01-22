@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import tokenController from "./tokenController";
 import otpController from "./otpController";
 import { mailSendResetPassword, mailSendConfirmAccount } from "../../../utils/mail";
+import { generateAccessToken, generateRefreshToken } from "../../../utils/token";
 
 // [POST] Register Account
 const register = async (req, res) => {
@@ -70,39 +71,6 @@ const confirmAccount = async (req, res) => {
         console.error("Error during account confirmation:", error);
         return res.status(500).json("Internal Server Error");
     }
-};
-
-
-// Generate Access Token
-const generateAccessToken = (user) => {
-    const accessToken = jwt.sign(
-        {
-            uid: user.id,
-            user_name: user.user_name,
-            role: user.role,
-        },
-        process.env.JWT_ACCESS_KEY,
-        {
-            expiresIn: "1h",
-        }
-    );
-    return accessToken;
-};
-
-// Generate Refresh Token
-const generateRefreshToken = (user) => {
-    const refreshToken = jwt.sign(
-        {
-            uid: user.id,
-            user_name: user.user_name,
-            role: user.role,
-        },
-        process.env.JWT_REFRESH_KEY,
-        {
-            expiresIn: "30d", // 30 days
-        }
-    );
-    return refreshToken;
 };
 
 // [POST] Login Account
@@ -237,8 +205,9 @@ const confirmForgotPassword = async (req, res) => {
         if (!isOtpValid) {
             return res.status(401).json("Invalid OTP");
         }
+        const newAccessToken = generateNewAccessToken(uid);
         // Add your logic for successful OTP verification here
-        return res.status(200).json("OTP verification successfully");
+        return res.status(200).json({ message: "OTP verification successful", accessToken: newAccessToken });
     } catch (error) {
         console.error("Error during OTP verification:", error);
         return res.status(500).json("Internal Server Error");
