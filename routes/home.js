@@ -6,7 +6,7 @@ import homeController from "../app/controllers/services/homeController"
 router.post("/create", homeController.createHome);
 
 // [Get] Get Home
-router.get("/:uid", homeController.getHome);
+router.get("/", homeController.getHome);
 
 // [Put] Edit Home
 router.put("/edit/:hid", homeController.editHome);

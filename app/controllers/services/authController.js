@@ -79,7 +79,7 @@ const generateAccessToken = (user) => {
         {
             uid: user.id,
             user_name: user.user_name,
-            admin: user.admin,
+            role: user.role,
         },
         process.env.JWT_ACCESS_KEY,
         {
@@ -95,7 +95,7 @@ const generateRefreshToken = (user) => {
         {
             uid: user.id,
             user_name: user.user_name,
-            admin: user.admin,
+            role: user.role,
         },
         process.env.JWT_REFRESH_KEY,
         {

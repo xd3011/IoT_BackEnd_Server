@@ -2,7 +2,8 @@ import Device from "../../models/Device";
 
 const createDevice = async (req, res) => {
     try {
-        const { uid, rid, device_name, gateway_code, mac_address, device_type } = req.body;
+        const { uid } = req.user;
+        const { rid, device_name, gateway_code, mac_address, device_type } = req.body;
         // Assuming Device is your mongoose model
         const newDevice = new Device({
             device_owner: uid,

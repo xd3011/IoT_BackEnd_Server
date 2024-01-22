@@ -2,7 +2,8 @@ import Home from "../../models/Home";
 
 const createHome = async (req, res) => {
     try {
-        const { address, home_name, uid } = req.body;
+        const { uid } = req.user;
+        const { address, home_name } = req.body;
         const newHome = new Home({
             address,
             home_name,
@@ -20,7 +21,7 @@ const createHome = async (req, res) => {
 
 const getHome = async (req, res) => {
     try {
-        const { uid } = req.params;
+        const { uid } = req.user;
         // Assuming Home is your mongoose model
         const homes = await Home.find({ user_in_home: uid });
         if (!homes || homes.length === 0) {
