@@ -29,7 +29,6 @@ const register = async (req, res) => {
             verify: false,
             role: "user",
             name,
-            home_list: [],
         });
         await newUser.save();
         // Send confirmation email if email is provided

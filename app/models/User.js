@@ -10,8 +10,6 @@ const User = new Schema(
         pass_word: { type: String, required: true },
         verify: { type: Boolean },
         role: { type: String },
-        // home_list: [{ type: ObjectId, ref: 'Home' }],
-        home_list: [{ type: Types.ObjectId, ref: 'Home' }], // Use Types.ObjectId
         name: { type: String },
     },
     {

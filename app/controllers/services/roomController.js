@@ -7,7 +7,6 @@ const createRoom = async (req, res) => {
         const newRoom = new Room({
             room_name,
             home_id: hid,
-            device_in_room: [],
         });
         await newRoom.save();
         return res.status(201).json({ message: "Room created successfully" });

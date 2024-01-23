@@ -4,13 +4,18 @@ const createHome = async (req, res) => {
     try {
         const { uid } = req.user;
         const { address, home_name } = req.body;
+        // Create a new Home instance with an empty user_in_home array
         const newHome = new Home({
             address,
             home_name,
             owner: uid,
-            user_in_home: uid,
-            room_in_home: [],
+            user_in_home: [],
         });
+        // Save the new home to the database
+        await newHome.save();
+        // Add the owner (current user) to the user_in_home array
+        newHome.user_in_home.push(uid);
+        // Save the updated home to the database
         await newHome.save();
         return res.status(201).send("Create home successfully");
     } catch (error) {
