@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 import Home from "../../models/Home";
+import Device from "../../models/Device";
 
 const verifyToken = (req, res, next) => {
     const token = req.headers.accessToken;
@@ -48,4 +49,24 @@ const checkOwnerInHome = async (req, res, next) => {
     }
 };
 
-module.exports = { verifyToken, checkAdmin, checkIsUser, checkOwnerInHome };
+const checkOwnerDevice = async (req, res, next) => {
+    try {
+        const deviceId = req.body.did;
+        if (!deviceId) {
+            return res.status(400).json({ message: "Invalid device ID" });
+        }
+        const device = await Device.findById(deviceId);
+        if (!device) {
+            return res.status(404).json({ message: "Device not found" });
+        }
+        if (device.device_owner === req.user.uid) {
+            return next();
+        }
+        return res.status(403).json({ message: "Permission denied. User is not the owner of the device" });
+    } catch (error) {
+        console.error("Error checking owner in home:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+module.exports = { verifyToken, checkAdmin, checkIsUser, checkOwnerInHome, checkOwnerDevice };

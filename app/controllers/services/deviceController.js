@@ -1,4 +1,6 @@
 import Device from "../../models/Device";
+import publisherDevice from "../devices/deviceController";
+
 
 const createDevice = async (req, res) => {
     try {
@@ -16,6 +18,7 @@ const createDevice = async (req, res) => {
             device_online: false,
             device_data: {}
         });
+        await publisherDevice.publisherCreateDevice(newDevice, gateway_code);
         await newDevice.save();
         return res.status(201).json({ message: "Device created successfully", newDevice });
     } catch (error) {
@@ -48,6 +51,9 @@ const editDevice = async (req, res) => {
         if (!device) {
             return res.status(404).json({ message: "Device not found" });
         }
+        if (device.device_in_room !== device_in_room) {
+            publisherDevice.publisherMoveDevice(device, device.gateway_code);
+        }
         device.device_in_room = device_in_room;
         device.device_name = device_name;
         device.gateway_code = gateway_code;
@@ -61,6 +67,28 @@ const editDevice = async (req, res) => {
     }
 };
 
+const changeOwnerDevice = async (req, res) => {
+    try {
+        const { uid, did } = req.body;
+        if (!uid || !did) {
+            return res.status(400).json({ message: "Invalid user ID or device ID" });
+        }
+        const updatedDevice = await Device.findByIdAndUpdate(
+            did,
+            { device_owner: uid },
+        );
+        if (!updatedDevice) {
+            return res.status(404).json({ message: "Device not found" });
+        }
+        publisherDevice.publisherChangeOwnerDevice(updatedDevice, updatedDevice.gateway_code);
+        return res.status(200).json({ message: "Owner changed successfully", updatedDevice });
+    } catch (error) {
+        console.error("Error changing device owner:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+
 
 const deleteDevice = async (req, res) => {
     try {
@@ -70,6 +98,7 @@ const deleteDevice = async (req, res) => {
         if (!device) {
             return res.status(404).json({ message: "Device not found" });
         }
+        publisherDevice.publisherDeleteDevice(device, device.gateway_code);
         return res.status(200).json({ message: "Device deleted successfully", deletedDevice: device });
     } catch (error) {
         console.error("Error deleting device:", error);
@@ -77,5 +106,4 @@ const deleteDevice = async (req, res) => {
     }
 };
 
-
-module.exports = { createDevice, getDevice, editDevice, deleteDevice }
+module.exports = { createDevice, getDevice, editDevice, deleteDevice, changeOwnerDevice }
