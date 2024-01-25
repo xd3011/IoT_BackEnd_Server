@@ -1,4 +1,5 @@
 import Home from "../../models/Home";
+import { getUser } from "../services/userController";
 
 const createHome = async (req, res) => {
     try {

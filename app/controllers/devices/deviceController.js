@@ -1,4 +1,4 @@
-import mqtt from "../../../config/mqtt";
+import mqtt from "../../../configs/mqtt/index";
 
 const publisherCreateDevice = async (device, topic) => {
     try {

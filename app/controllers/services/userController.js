@@ -1,7 +1,22 @@
 import User from '../../models/User';
 import Home from '../../models/Home';
 
-const addUserFromHome = async (req, res) => {
+const userInHome = async (req, res) => {
+    try {
+        const { hid } = req.params;
+        const home = await Home.findById(hid);
+        if (!home) {
+            return res.status(404).json({ error: 'Home not found' });
+        }
+        const users = await Promise.all(home.user_in_home.map(userId => getUser(userId)));
+        return res.status(200).json({ users, message: 'Users in home fetched successfully' });
+    } catch (error) {
+        console.error(`Error fetching users in home: ${error.message}`);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+const addUserToHome = async (req, res) => {
     try {
         const { uid, hid } = req.body;
         // Assuming Home is your mongoose model
@@ -20,6 +35,9 @@ const deleteUserFromHome = async (req, res) => {
         const { uid, hid } = req.body;
         // Assuming Home is your mongoose model
         const home = await Home.findById(hid);
+        if (home.home_owner === uid) {
+            return res.status(403).json({ message: "Cannot remove from the home" });
+        }
         const index = home.user_in_home.indexOf(uid);
         if (index !== -1) {
             home.user_in_home.splice(index, 1);
@@ -34,7 +52,7 @@ const deleteUserFromHome = async (req, res) => {
     }
 };
 
-const getUser = async (req, res) => {
+const getAllUser = async (req, res) => {
     try {
         const users = await User.find();
         // Always check for an empty array, not just "truthiness"
@@ -62,5 +80,72 @@ const deleteUser = async (req, res) => {
     }
 };
 
+const createAdmin = async (req, res) => {
+    try {
+        const { email, phone, user_name, pass_word, name } = req.body;
+        // Validate that either email or phone is provided
+        if (!email && !phone) {
+            return res.status(400).send("Email or phone is required for registration.");
+        }
+        // Create password hash
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(pass_word, salt);
+        // Create and save User
+        const newUser = new User({
+            email,
+            phone,
+            user_name,
+            pass_word: hashedPassword,
+            verify: true,
+            role: "admin",
+            name,
+        });
+        await newUser.save();
+        // Send confirmation email if email is provided
+        res.status(200).send("Confirm Account");
+    } catch (error) {
+        // Handle duplicate user_name error
+        if (error.code === 11000 && error.keyPattern.user_name) {
+            return res.status(409).send("Username already exists.");
+        }
+        console.error("Error in registration:", error);
+        res.status(500).send("Internal Server Error");
+    }
+}
 
-module.exports = { addUserFromHome, deleteUserFromHome, getUser, deleteUser }
+const changeToAdmin = async (req, res) => {
+    try {
+        const { uid } = req.body;
+        const user = await User.findById(uid);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        if (user.role === "admin") {
+            return res.status(400).json({ message: "User is already an admin" });
+        }
+        user.role = "admin";
+        await user.save();
+        return res.status(200).json({ message: "User role changed to admin successfully", updatedUser: user });
+    } catch (error) {
+        console.error("Error changing user role to admin:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+
+const getUser = async (uid) => {
+    try {
+        const user = await User.findById(uid);
+        if (!user) {
+            // Handle the case when the user is not found, e.g., throw an error or return a meaningful response
+            throw new Error('User not found');
+        }
+        return user;
+    } catch (error) {
+        // Handle other potential errors, log them, or rethrow as needed
+        console.error(`Error fetching user: ${error.message}`);
+        throw error;
+    }
+};
+
+module.exports = { userInHome, addUserToHome, deleteUserFromHome, getAllUser, deleteUser, getUser, createAdmin, changeToAdmin }

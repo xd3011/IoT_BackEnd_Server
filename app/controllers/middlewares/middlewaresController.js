@@ -34,7 +34,8 @@ const checkIsUser = (req, res, next) => {
 
 const checkOwnerInHome = async (req, res, next) => {
     try {
-        const home = await Home.findById(req.body.hid);
+        const { hid } = req.body;
+        const home = await Home.findById(hid);
         if (!home) {
             return res.status(404).json({ message: "Home not found" });
         }
@@ -51,11 +52,11 @@ const checkOwnerInHome = async (req, res, next) => {
 
 const checkOwnerDevice = async (req, res, next) => {
     try {
-        const deviceId = req.body.did;
-        if (!deviceId) {
+        const { did } = req.body;
+        if (!did) {
             return res.status(400).json({ message: "Invalid device ID" });
         }
-        const device = await Device.findById(deviceId);
+        const device = await Device.findById(did);
         if (!device) {
             return res.status(404).json({ message: "Device not found" });
         }

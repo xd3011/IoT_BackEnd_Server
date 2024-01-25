@@ -31,7 +31,9 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.1.0",
     "mqtt": "^5.3.4",
-    "nodemailer": "^6.9.8"
+    "nodemailer": "^6.9.8",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",

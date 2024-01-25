@@ -1,7 +1,6 @@
 import Device from "../../models/Device";
 import publisherDevice from "../devices/deviceController";
 
-
 const createDevice = async (req, res) => {
     try {
         const { uid } = req.user;
@@ -45,16 +44,16 @@ const getDevice = async (req, res) => {
 const editDevice = async (req, res) => {
     try {
         const { did } = req.params;
-        const { device_in_room, device_name, gateway_code, mac_address, device_type } = req.body;
+        const { rid, device_name, gateway_code, mac_address, device_type } = req.body;
         // Assuming Device is your mongoose model
         const device = await Device.findById(did);
         if (!device) {
             return res.status(404).json({ message: "Device not found" });
         }
-        if (device.device_in_room !== device_in_room) {
+        if (device.device_in_room !== rid) {
             publisherDevice.publisherMoveDevice(device, device.gateway_code);
+            device.device_in_room = rid;
         }
-        device.device_in_room = device_in_room;
         device.device_name = device_name;
         device.gateway_code = gateway_code;
         device.mac_address = mac_address;
