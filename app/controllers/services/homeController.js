@@ -31,12 +31,13 @@ const getHome = async (req, res) => {
         // Assuming Home is your mongoose model
         const homes = await Home.find({ user_in_home: uid });
         if (!homes || homes.length === 0) {
-            return res.status(404).json({ message: "Home not found for the specified user." });
+            // return res.status(404).json({ message: "Home not found for the specified user." });
+            return res.status(200).json({ message: "You don't have any homes. Please create a new home." });
         }
-        return res.json(homes);
+        return res.status(200).json({ message: "Success!", homes: homes });
     } catch (error) {
         console.error("Error fetching home:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 

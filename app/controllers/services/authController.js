@@ -38,7 +38,7 @@ const register = async (req, res) => {
         else {
             // Send SMS Link
         }
-        res.status(200).send("Confirm Account");
+        res.status(200).send({ message: "Please go to your email and confirm your account" });
     } catch (error) {
         // Handle duplicate user_name error
         if (error.code === 11000 && error.keyPattern.user_name) {
@@ -80,17 +80,17 @@ const login = async (req, res) => {
         const user = await User.findOne({ user_name });
         // Check the existence of the user
         if (!user) {
-            return res.status(401).json("Wrong username");
+            return res.status(401).json({ error: "Wrong username" });
         }
         // Check the password
         const validPassword = await bcrypt.compare(pass_word, user.pass_word);
 
         if (!validPassword) {
-            return res.status(401).json("Wrong password");
+            return res.status(401).json({ error: "Wrong password" });
         }
         // Check the verification status of the account
         if (!user.verify) {
-            return res.status(401).json("Account is not verified");
+            return res.status(401).json({ error: "Account is not verified" });
         }
         // Generate access and refresh tokens
         const accessToken = generateAccessToken(user);
@@ -98,10 +98,10 @@ const login = async (req, res) => {
         // Create and save the refresh token for future refreshment
         tokenController.createToken(user._id, refreshToken);
         // Return token information and user id
-        return res.status(200).json({ accessToken, refreshToken, uid: user._id });
+        return res.status(200).json({ accessToken, refreshToken, uid: user._id, message: 'Login Successfully' });
     } catch (error) {
         console.error("Error during login:", error);
-        return res.status(500).json("Internal Server Error");
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 

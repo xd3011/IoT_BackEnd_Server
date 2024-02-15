@@ -22,12 +22,12 @@ const getRoom = async (req, res) => {
         // Assuming Room is your mongoose model
         const rooms = await Room.find({ home_id: hid });
         if (!rooms || rooms.length === 0) {
-            return res.status(404).json({ message: "No rooms found for the specified home" });
+            return res.status(404).json({ error: "No rooms found for the specified home" });
         }
-        return res.json(rooms);
+        return res.json({ message: "Success!", rooms: rooms });
     } catch (error) {
         console.error("Error fetching rooms:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 

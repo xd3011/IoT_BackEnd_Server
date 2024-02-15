@@ -19,6 +19,10 @@ const userInHome = async (req, res) => {
 const addUserToHome = async (req, res) => {
     try {
         const { uid, hid } = req.body;
+        const user = await User.findById(uid);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
         // Assuming Home is your mongoose model
         const home = await Home.findById(hid);
         home.user_in_home.push(uid);
@@ -85,7 +89,7 @@ const createAdmin = async (req, res) => {
         const { email, phone, user_name, pass_word, name } = req.body;
         // Validate that either email or phone is provided
         if (!email && !phone) {
-            return res.status(400).send("Email or phone is required for registration.");
+            return res.status(400).json({ error: "Email or phone is required for registration." });
         }
         // Create password hash
         const salt = await bcrypt.genSalt(10);
@@ -96,22 +100,21 @@ const createAdmin = async (req, res) => {
             phone,
             user_name,
             pass_word: hashedPassword,
-            verify: true,
+            verify: email ? false : true, // Set verify to false if email is provided
             role: "admin",
             name,
         });
         await newUser.save();
-        // Send confirmation email if email is provided
-        res.status(200).send("Confirm Account");
+        return res.status(200).json({ message: "Admin account created successfully" });
     } catch (error) {
         // Handle duplicate user_name error
         if (error.code === 11000 && error.keyPattern.user_name) {
-            return res.status(409).send("Username already exists.");
+            return res.status(409).json({ error: "Username already exists." });
         }
         console.error("Error in registration:", error);
-        res.status(500).send("Internal Server Error");
+        return res.status(500).json({ error: "Internal Server Error" });
     }
-}
+};
 
 const changeToAdmin = async (req, res) => {
     try {

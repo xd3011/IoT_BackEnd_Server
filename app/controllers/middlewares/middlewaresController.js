@@ -3,7 +3,7 @@ import Home from "../../models/Home";
 import Device from "../../models/Device";
 
 const verifyToken = (req, res, next) => {
-    const token = req.headers.accessToken;
+    const token = req.headers.authorization;
     if (!token) {
         return res.status(401).json({ message: "Access token is missing" });
     }

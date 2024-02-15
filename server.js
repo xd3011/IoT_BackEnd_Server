@@ -5,6 +5,9 @@ import { route } from "./routes/index"
 import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUI from "swagger-ui-express";
 
+const cors = require('cors')
+app.use(cors());
+
 // Config .env
 dotenv.config();
 const PORT = process.env.PORT || 5000;
