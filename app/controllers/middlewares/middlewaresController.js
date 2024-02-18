@@ -34,12 +34,12 @@ const checkIsUser = (req, res, next) => {
 
 const checkOwnerInHome = async (req, res, next) => {
     try {
-        const { hid } = req.body;
+        const { hid } = req.params;
         const home = await Home.findById(hid);
         if (!home) {
             return res.status(404).json({ message: "Home not found" });
         }
-        if (home.home_owner === req.user.uid) {
+        if (home.home_owner == req.user.uid) {
             next();
         } else {
             return res.status(403).json({ message: "Permission denied. User is not the owner of the home" });

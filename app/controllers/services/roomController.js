@@ -40,16 +40,16 @@ const editRoom = async (req, res) => {
         const room = await Room.findById(rid);
 
         if (!room) {
-            return res.status(404).json({ message: "Room not found" });
+            return res.status(404).json({ error: "Room not found" });
         }
 
         room.room_name = room_name;
         await room.save();
 
-        return res.status(200).json({ message: "Room updated successfully", updatedRoom: room });
+        return res.status(200).json({ message: "Room updated successfully" });
     } catch (error) {
         console.error("Error editing room:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 

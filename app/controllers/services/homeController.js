@@ -1,5 +1,4 @@
 import Home from "../../models/Home";
-import { getUser } from "../services/userController";
 
 const createHome = async (req, res) => {
     try {
@@ -9,7 +8,7 @@ const createHome = async (req, res) => {
         const newHome = new Home({
             address,
             home_name,
-            owner: uid,
+            home_owner: uid,
             user_in_home: [],
         });
         // Save the new home to the database
@@ -18,10 +17,10 @@ const createHome = async (req, res) => {
         newHome.user_in_home.push(uid);
         // Save the updated home to the database
         await newHome.save();
-        return res.status(201).send("Create home successfully");
+        return res.status(201).send({ message: "Create home successfully" });
     } catch (error) {
         console.error("Error creating home:", error);
-        return res.status(500).send("Internal Server Error");
+        return res.status(500).send({ error: "Internal Server Error" });
     }
 };
 
@@ -65,12 +64,12 @@ const deleteHome = async (req, res) => {
         // Assuming Home is your mongoose model
         const home = await Home.findByIdAndDelete(hid);
         if (!home) {
-            return res.status(404).json({ message: "Home not found" });
+            return res.status(404).json({ error: "Home not found" });
         }
         return res.status(200).json({ message: "Home deleted successfully", deletedHome: home });
     } catch (error) {
         console.error("Error deleting home:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 

@@ -119,15 +119,15 @@ import homeController from "../app/controllers/services/homeController"
 import { verifyToken, checkOwnerInHome } from "../app/controllers/middlewares/middlewaresController";
 
 // [Post] Create Home
-router.post("/create", verifyToken, homeController.createHome);
+router.post("/", verifyToken, homeController.createHome);
 
 // [Get] Get Home
 router.get("/", verifyToken, homeController.getHome);
 
 // [Put] Edit Home
-router.put("/edit/:hid", verifyToken, checkOwnerInHome, homeController.editHome);
+router.put("/:hid", verifyToken, checkOwnerInHome, homeController.editHome);
 
 // [Delete] Delete Home
-router.delete("/delete/:hid", verifyToken, checkOwnerInHome, homeController.deleteHome);
+router.delete("/:hid", verifyToken, checkOwnerInHome, homeController.deleteHome);
 
 module.exports = router;
