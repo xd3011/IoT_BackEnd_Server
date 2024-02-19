@@ -9,7 +9,12 @@ const userInHome = async (req, res) => {
             return res.status(404).json({ error: 'Home not found' });
         }
         const users = await Promise.all(home.user_in_home.map(userId => getUser(userId)));
-        return res.status(200).json({ users, message: 'Users in home fetched successfully' });
+        const adminId = home.home_owner;
+        const homeAdmin = await User.findById(adminId);
+        if (!homeAdmin) {
+            return res.status(404).json({ error: 'Admin Error' });
+        }
+        return res.status(200).json({ users, message: 'Users in home fetched successfully', homeAdmin });
     } catch (error) {
         console.error(`Error fetching users in home: ${error.message}`);
         return res.status(500).json({ error: 'Internal server error' });

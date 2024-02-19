@@ -119,13 +119,13 @@
 const express = require("express");
 const router = express.Router();
 import roomController from "../app/controllers/services/roomController"
-import { verifyToken } from "../app/controllers/middlewares/middlewaresController";
+import { verifyToken, checkUserInHome } from "../app/controllers/middlewares/middlewaresController";
 
 // [Post] Create Room
 router.post("/", verifyToken, roomController.createRoom);
 
 // [Get] Get Room
-router.get("/:hid", verifyToken, roomController.getRoom);
+router.get("/:hid", verifyToken, checkUserInHome, roomController.getRoom);
 
 // [Put] Edit Room
 router.put("/:rid", verifyToken, roomController.editRoom);

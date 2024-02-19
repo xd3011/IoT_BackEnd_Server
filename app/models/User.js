@@ -11,6 +11,9 @@ const User = new Schema(
         verify: { type: Boolean },
         role: { type: String },
         name: { type: String },
+        age: { type: Number },
+        sex: { type: Number },
+        address: { type: String },
     },
     {
         timestamps: true,

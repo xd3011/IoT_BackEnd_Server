@@ -34,7 +34,7 @@ const checkIsUser = (req, res, next) => {
 
 const checkOwnerInHome = async (req, res, next) => {
     try {
-        const { hid } = req.params;
+        const { hid } = req.body;
         const home = await Home.findById(hid);
         if (!home) {
             return res.status(404).json({ message: "Home not found" });
@@ -49,6 +49,25 @@ const checkOwnerInHome = async (req, res, next) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
+const checkUserInHome = async (req, res, next) => {
+    try {
+        const { hid } = req.params;
+        const home = await Home.findById(hid);
+        if (!home) {
+            return res.status(404).json({ message: "Home not found" });
+        }
+        if (home.user_in_home.includes(req.user.uid)) {
+            next();
+        }
+        else {
+            return res.status(404).json({ message: "User is not in the home" });
+        }
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+}
 
 const checkOwnerDevice = async (req, res, next) => {
     try {
@@ -70,4 +89,4 @@ const checkOwnerDevice = async (req, res, next) => {
     }
 };
 
-module.exports = { verifyToken, checkAdmin, checkIsUser, checkOwnerInHome, checkOwnerDevice };
+module.exports = { verifyToken, checkAdmin, checkIsUser, checkOwnerInHome, checkUserInHome, checkOwnerDevice };
