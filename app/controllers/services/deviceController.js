@@ -95,14 +95,29 @@ const deleteDevice = async (req, res) => {
         // Assuming Device is your mongoose model
         const device = await Device.findByIdAndDelete(did);
         if (!device) {
-            return res.status(404).json({ message: "Device not found" });
+            return res.status(404).json({ error: "Device not found" });
         }
         publisherDevice.publisherDeleteDevice(device, device.gateway_code);
-        return res.status(200).json({ message: "Device deleted successfully", deletedDevice: device });
+        return res.status(200).json({ message: "Device deleted successfully" });
     } catch (error) {
         console.error("Error deleting device:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
-module.exports = { createDevice, getDevice, editDevice, deleteDevice, changeOwnerDevice }
+const deleteDeviceInRoom = async (req, res) => {
+    try {
+        const { rid } = req.body;
+        const device = await Device.deleteMany({ device_in_room: rid });
+        if (!device) {
+            return res.status(404).json({ error: "Device not found" })
+        }
+        publisherDevice.publisherDeleteDevice(device, device.gateway_code);
+        return res.status(200).json({ message: "Device deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting device:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+module.exports = { createDevice, getDevice, editDevice, deleteDevice, changeOwnerDevice, deleteDeviceInRoom }

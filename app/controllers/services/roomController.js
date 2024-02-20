@@ -59,13 +59,27 @@ const deleteRoom = async (req, res) => {
         // Assuming Room is your mongoose model
         const room = await Room.findByIdAndDelete(rid);
         if (!room) {
-            return res.status(404).json({ message: "Room not found" });
+            return res.status(404).json({ error: "Room not found" });
         }
         return res.status(200).json({ message: "Room deleted successfully", deletedRoom: room });
     } catch (error) {
         console.error("Error deleting room:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
-module.exports = { createRoom, getRoom, editRoom, deleteRoom }
+const deleteRoomInHome = async (req, res) => {
+    try {
+        const { hid } = req.body;
+        const result = await Room.deleteMany({ home_id: hid });
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ error: "No rooms found with the specified home_id" });
+        }
+        return res.status(200).json({ message: "All rooms in the home deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting rooms:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+module.exports = { createRoom, getRoom, editRoom, deleteRoom, deleteRoomInHome }

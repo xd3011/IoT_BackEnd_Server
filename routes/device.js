@@ -168,7 +168,11 @@ router.put("/edit/:did", verifyToken, checkOwnerDevice, deviceController.editDev
 // [Put] Change Owner Device
 router.put("/change/:did", verifyToken, checkOwnerDevice, deviceController.changeOwnerDevice);
 
+// [Delete] Delete All Devices In Room
+router.delete("/deleteAllInRoom", verifyToken, checkOwnerDevice, deviceController.deleteDeviceInRoom);
+
 // [Delete] Delete Device
-router.delete("/delete/:did", verifyToken, checkOwnerDevice, deviceController.deleteDevice);
+router.delete("/:did", verifyToken, checkOwnerDevice, deviceController.deleteDevice);
+
 
 module.exports = router;

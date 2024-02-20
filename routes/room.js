@@ -130,6 +130,9 @@ router.get("/:hid", verifyToken, checkUserInHome, roomController.getRoom);
 // [Put] Edit Room
 router.put("/:rid", verifyToken, roomController.editRoom);
 
+// [Delete] Delete All Room In Home
+router.delete("/deleteRoomInHome", verifyToken, roomController.deleteRoomInHome);
+
 // [Delete] Delete Room
 router.delete("/:rid", verifyToken, roomController.deleteRoom);
 
