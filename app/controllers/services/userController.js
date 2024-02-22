@@ -126,17 +126,17 @@ const changeToAdmin = async (req, res) => {
         const { uid } = req.body;
         const user = await User.findById(uid);
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ error: "User not found" });
         }
         if (user.role === "admin") {
-            return res.status(400).json({ message: "User is already an admin" });
+            return res.status(400).json({ error: "User is already an admin" });
         }
         user.role = "admin";
         await user.save();
         return res.status(200).json({ message: "User role changed to admin successfully", updatedUser: user });
     } catch (error) {
         console.error("Error changing user role to admin:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
@@ -156,4 +156,21 @@ const getUser = async (uid) => {
     }
 };
 
-module.exports = { userInHome, addUserToHome, deleteUserFromHome, getAllUser, deleteUser, getUser, createAdmin, changeToAdmin }
+const getUserProfile = async (req, res) => {
+    try {
+        const { uid } = req.user;
+        const user = await User.findById(uid);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        else {
+            return res.status(200).json({ message: 'Get success', user });
+        }
+    }
+    catch {
+        console.error("Error changing user role to admin:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+module.exports = { userInHome, addUserToHome, deleteUserFromHome, getAllUser, deleteUser, getUser, createAdmin, changeToAdmin, getUserProfile }

@@ -240,4 +240,7 @@ router.post("/createAccountAdmin", verifyToken, checkAdmin, userController.creat
 // [Put] Change User To Admin
 router.put("/changeUserToAdmin", verifyToken, checkAdmin, userController.changeToAdmin);
 
+// [Get] Get User Profile
+router.get("/getUserProfile", verifyToken, userController.getUserProfile)
+
 module.exports = router;

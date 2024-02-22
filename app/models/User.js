@@ -12,8 +12,11 @@ const User = new Schema(
         role: { type: String },
         name: { type: String },
         age: { type: Number },
-        sex: { type: Number },
+        gender: { type: Number },
         address: { type: String },
+        about: { type: String },
+        photo: { type: String },
+        cover: { type: String },
     },
     {
         timestamps: true,
