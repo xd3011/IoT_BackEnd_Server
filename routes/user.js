@@ -243,4 +243,7 @@ router.put("/changeUserToAdmin", verifyToken, checkAdmin, userController.changeT
 // [Get] Get User Profile
 router.get("/getUserProfile", verifyToken, userController.getUserProfile)
 
+// [PUT] Update User Profile
+router.put("/updateUserProfile", verifyToken, userController.updateUserProfile)
+
 module.exports = router;

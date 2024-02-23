@@ -1,5 +1,7 @@
 import User from '../../models/User';
 import Home from '../../models/Home';
+import { mailSendConfirmAccount } from "../../../utils/mail";
+
 
 const userInHome = async (req, res) => {
     try {
@@ -173,4 +175,57 @@ const getUserProfile = async (req, res) => {
     }
 }
 
-module.exports = { userInHome, addUserToHome, deleteUserFromHome, getAllUser, deleteUser, getUser, createAdmin, changeToAdmin, getUserProfile }
+const updateUserProfile = async (req, res) => {
+    try {
+        const { uid } = req.user;
+        const user = await User.findById(uid);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        else {
+            const { name, age, gender, email, phone, address, about } = req.body;
+            if (name) {
+                user.name = name;
+                await user.save();
+                return res.status(200).json({ message: 'Update name successfully' });
+            }
+            if (age) {
+                user.age = age;
+                await user.save();
+                return res.status(200).json({ message: 'Update age successfully' });
+            }
+            if (gender) {
+                user.gender = gender;
+                await user.save();
+                return res.status(200).json({ message: 'Update gender successfully' });
+            }
+            if (email) {
+                user.email = email;
+                await user.save();
+                mailSendConfirmAccount();
+                return res.status(200).json({ message: 'Update email successfully' });
+            }
+            if (phone) {
+                user.phone = phone;
+                await user.save();
+                // Confirm Phone Number
+                return res.status(200).json({ message: 'Update phone number successfully' });
+            }
+            if (address) {
+                user.address = address;
+                await user.save();
+                return res.status(200).json({ message: 'Update address successfully' });
+            }
+            if (about) {
+                user.about = about;
+                await user.save();
+                return res.status(200).json({ message: 'Update about successfully' });
+            }
+        }
+    } catch {
+        console.error("Error save user profile", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+module.exports = { userInHome, addUserToHome, deleteUserFromHome, getAllUser, deleteUser, getUser, createAdmin, changeToAdmin, getUserProfile, updateUserProfile }
