@@ -200,7 +200,7 @@
 const express = require("express");
 const router = express.Router();
 import authController from "../app/controllers/services/authController"
-import { verifyToken, checkAdmin, checkIsUser, checkOwnerInHome } from "../app/controllers/middlewares/middlewaresController";
+import { verifyToken, checkIsUser } from "../app/controllers/middlewares/middlewaresController";
 
 // [Post] Register Account
 router.post("/register", authController.register);
@@ -218,7 +218,7 @@ router.post("/refreshToken/:uid", authController.refreshToken);
 router.post("/logout/:uid", authController.logout);
 
 // [Put] Edit Password
-router.put("/editPassword/:uid", verifyToken, checkIsUser, authController.editPassword);
+router.put("/editPassword", verifyToken, checkIsUser, authController.editPassword);
 
 // [Post] Forgot Password
 router.post("/forgotPassword", authController.forgotPassword);

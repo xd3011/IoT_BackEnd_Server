@@ -126,7 +126,7 @@ const refreshToken = async (req, res) => {
     } catch (error) {
         // Handle internal server error and provide more details
         console.error("Error during token refresh:", error);
-        res.status(500).json("Internal Server Error");
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
@@ -140,32 +140,31 @@ const logout = async (req, res) => {
         res.status(200).json("Logged out");
     } catch (error) {
         console.error("Error during logout:", error);
-        res.status(500).json("Internal Server Error");
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
 const editPassword = async (req, res) => {
     try {
-        const { uid } = req.params;
-        const { oldPassword, newPassword } = req.body;
+        const { uid, oldPassword, newPassword } = req.body;
         const user = await User.findById(uid);
         if (!user) {
-            return res.status(404).json("Invalid ID");
+            return res.status(404).json({ error: "User not found" });
         }
         // Validate old password
         const validPassword = await bcrypt.compare(oldPassword, user.pass_word);
         if (!validPassword) {
-            return res.status(401).json("Wrong password");
+            return res.status(401).json({ error: "Wrong password" });
         }
         // Hash the new password
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.pass_word = hashedPassword;
         await user.save();
-        return res.status(200).json("Update Password Successfully");
+        return res.status(200).json({ message: "Update Password Successfully" });
     } catch (error) {
         // Handle errors and provide more details
         console.error("Error during password update:", error);
-        res.status(500).json("Internal Server Error");
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
@@ -192,7 +191,7 @@ const forgotPassword = async (req, res) => {
     } catch (error) {
         // Handle errors and provide more details
         console.error("Error during password reset:", error);
-        res.status(500).json("Internal Server Error");
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
@@ -209,7 +208,7 @@ const confirmForgotPassword = async (req, res) => {
         return res.status(200).json({ message: "OTP verification successful", accessToken: newAccessToken });
     } catch (error) {
         console.error("Error during OTP verification:", error);
-        return res.status(500).json("Internal Server Error");
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
