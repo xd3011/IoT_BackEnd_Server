@@ -11,7 +11,7 @@ const Device = new Schema(
         mac_address: { type: String },
         verify: { type: Boolean },
         device_online: { type: Boolean },
-        device_type: { type: String },
+        device_type: { type: Number },
         // device_code: { type: Number },
         device_data: { type: Object },
     },

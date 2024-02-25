@@ -71,21 +71,21 @@ const checkUserInHome = async (req, res, next) => {
 
 const checkOwnerDevice = async (req, res, next) => {
     try {
-        const { did } = req.body;
+        const { did } = req.params;
         if (!did) {
-            return res.status(400).json({ message: "Invalid device ID" });
+            return res.status(400).json({ error: "Invalid device ID" });
         }
         const device = await Device.findById(did);
         if (!device) {
-            return res.status(404).json({ message: "Device not found" });
+            return res.status(404).json({ error: "Device not found" });
         }
-        if (device.device_owner === req.user.uid) {
+        if (device.device_owner.toString() === req.user.uid) {
             return next();
         }
-        return res.status(403).json({ message: "Permission denied. User is not the owner of the device" });
+        return res.status(403).json({ error: "Permission denied. User is not the owner of the device" });
     } catch (error) {
         console.error("Error checking owner in home:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 

@@ -48,21 +48,21 @@ const editDevice = async (req, res) => {
         // Assuming Device is your mongoose model
         const device = await Device.findById(did);
         if (!device) {
-            return res.status(404).json({ message: "Device not found" });
+            return res.status(404).json({ error: "Device not found" });
         }
-        if (device.device_in_room !== rid) {
+        if (device.device_in_room !== rid && rid) {
             publisherDevice.publisherMoveDevice(device, device.gateway_code);
             device.device_in_room = rid;
         }
         device.device_name = device_name;
         device.gateway_code = gateway_code;
         device.mac_address = mac_address;
-        device.device_type = device_type;
+        device_type && (device.device_type = device_type);
         await device.save();
-        return res.status(200).json({ message: "Device updated successfully", updatedDevice: device });
+        return res.status(200).json({ message: "Device updated successfully" });
     } catch (error) {
         console.error("Error editing device:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
