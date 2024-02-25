@@ -19,10 +19,10 @@ const createDevice = async (req, res) => {
         });
         await publisherDevice.publisherCreateDevice(newDevice, gateway_code);
         await newDevice.save();
-        return res.status(201).json({ message: "Device created successfully", newDevice });
+        return res.status(201).json({ message: "Device created successfully", devices: newDevice });
     } catch (error) {
         console.error("Error creating device:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
@@ -32,12 +32,12 @@ const getDevice = async (req, res) => {
         // Assuming Device is your mongoose model
         const devices = await Device.find({ device_in_room: rid });
         if (!devices || devices.length === 0) {
-            return res.status(404).json({ message: "No devices found for the specified room" });
+            return res.status(404).json({ error: "No devices found for the specified room" });
         }
-        return res.json(devices);
+        return res.status(200).json({ message: "Get Device successfully", devices: devices });
     } catch (error) {
         console.error("Error fetching devices:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 

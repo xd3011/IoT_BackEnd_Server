@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 import { route } from "./routes/index"
 import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUI from "swagger-ui-express";
+import mqtt from "./configs/mqtt/index";
 
 const cors = require('cors')
 app.use(cors());
@@ -15,6 +16,9 @@ const PORT = process.env.PORT || 5000;
 // Connect Database
 const database = require("./configs/database/index");
 database.connect();
+
+mqtt.mqttconnect();
+
 
 app.use(express.json());
 app.use(

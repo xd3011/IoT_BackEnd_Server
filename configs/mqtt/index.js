@@ -81,13 +81,14 @@ async function handleDelete(data) {
 }
 
 const publishDeviceMqtt = (data, topic) => {
-    client.publish(topic, JSON.stringify(data))
-        .then(() => {
+    client.publish(topic, JSON.stringify(data), (err) => {
+        if (err) {
+            console.error("Error publishing:", err);
+            callback(err);
+        } else {
             console.log("Publisher Successfully!");
-        })
-        .catch((err) => {
-            throw err
-        })
+        }
+    });
 }
 
 module.exports = { mqttconnect, publishDeviceMqtt };

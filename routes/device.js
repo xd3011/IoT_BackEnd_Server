@@ -157,7 +157,7 @@ import deviceController from "../app/controllers/services/deviceController"
 import { verifyToken, checkOwnerDevice } from "../app/controllers/middlewares/middlewaresController";
 
 // [Post] Create Device
-router.post("/create", verifyToken, deviceController.createDevice);
+router.post("/", verifyToken, deviceController.createDevice);
 
 // [Get] Get Device
 router.get("/:rid", verifyToken, deviceController.getDevice);
