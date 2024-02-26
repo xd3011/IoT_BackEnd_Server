@@ -24,12 +24,26 @@ const getRoom = async (req, res) => {
         if (!rooms || rooms.length === 0) {
             return res.status(404).json({ error: "No rooms found for the specified home" });
         }
-        return res.json({ message: "Success!", rooms: rooms });
+        return res.status(200).json({ message: "Success!", rooms: rooms });
     } catch (error) {
         console.error("Error fetching rooms:", error);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+const getRoomDetails = async (req, res) => {
+    try {
+        const { rid } = req.params;
+        const room = await Room.findOne({ _id: rid });
+        if (!room) {
+            return res.status(404).json({ error: "Room not found" });
+        }
+        return res.status(200).json({ room: room, message: "Get Room Success" });
+    } catch (error) {
+        console.error("Error fetching rooms:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
 
 const editRoom = async (req, res) => {
     try {
@@ -61,7 +75,7 @@ const deleteRoom = async (req, res) => {
         if (!room) {
             return res.status(404).json({ error: "Room not found" });
         }
-        return res.status(200).json({ message: "Room deleted successfully", deletedRoom: room });
+        return res.status(200).json({ message: "Room deleted successfully" });
     } catch (error) {
         console.error("Error deleting room:", error);
         return res.status(500).json({ error: "Internal Server Error" });
@@ -82,4 +96,4 @@ const deleteRoomInHome = async (req, res) => {
     }
 };
 
-module.exports = { createRoom, getRoom, editRoom, deleteRoom, deleteRoomInHome }
+module.exports = { createRoom, getRoom, editRoom, deleteRoom, deleteRoomInHome, getRoomDetails }

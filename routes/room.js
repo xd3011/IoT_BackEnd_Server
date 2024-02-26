@@ -127,6 +127,9 @@ router.post("/", verifyToken, roomController.createRoom);
 // [Get] Get Room
 router.get("/:hid", verifyToken, checkUserInHome, roomController.getRoom);
 
+// [Get] Get Room Details
+router.get("/getDetail/:rid", verifyToken, roomController.getRoomDetails);
+
 // [Put] Edit Room
 router.put("/:rid", verifyToken, roomController.editRoom);
 
