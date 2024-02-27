@@ -197,13 +197,16 @@ const forgotPassword = async (req, res) => {
 
 const confirmForgotPassword = async (req, res) => {
     try {
-        const { uid } = req.params;
-        const { OTP } = req.body;
-        const isOtpValid = await otpController.checkOtp(uid, OTP);
+        const { otp, uid } = req.body;
+        const isOtpValid = await otpController.checkOtp(uid, otp);
         if (!isOtpValid) {
-            return res.status(401).json("Invalid OTP");
+            return res.status(401).json({ error: "Invalid OTP" });
         }
-        const newAccessToken = generateNewAccessToken(uid);
+        const user = await User.findById(uid);
+        if (!user) {
+            return res.status(401).json({ error: " Cannot find user" });
+        }
+        const newAccessToken = generateAccessToken(user);
         // Add your logic for successful OTP verification here
         return res.status(200).json({ message: "OTP verification successful", accessToken: newAccessToken });
     } catch (error) {
@@ -212,4 +215,22 @@ const confirmForgotPassword = async (req, res) => {
     }
 };
 
-module.exports = { register, login, refreshToken, logout, editPassword, forgotPassword, confirmForgotPassword, confirmAccount }
+const resetPassword = async (req, res) => {
+    try {
+        const { uid } = req.user;
+        const { newPassword } = req.body;
+        const user = await User.findById(uid);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.pass_word = hashedPassword;
+        await user.save();
+        return res.status(200).json({ message: 'Reset Password Successful' });
+    } catch (error) {
+        console.error("", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+module.exports = { register, login, refreshToken, logout, editPassword, forgotPassword, confirmForgotPassword, confirmAccount, resetPassword };

@@ -23,6 +23,9 @@ async function mqttconnect() {
                 case 'home_iot/state':
                     await handleState(data);
                     break;
+                case 'home_iot/control':
+                    await handleControl(data);
+                    break;
                 case 'home_iot/delete':
                     await handleDelete(data);
                     break;
@@ -77,6 +80,16 @@ async function handleDelete(data) {
         }
     } catch (error) {
         console.error('Error parsing or processing delete request:', error);
+    }
+}
+
+async function handleControl(data) {
+    try {
+        const control = data.toString();
+        const controlData = JSON.parse(control);
+        console.log('Received control data:', controlData);
+    } catch (error) {
+        console.error('Error parsing or processing control data:', error);
     }
 }
 

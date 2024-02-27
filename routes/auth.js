@@ -224,6 +224,9 @@ router.put("/editPassword", verifyToken, checkIsUser, authController.editPasswor
 router.post("/forgotPassword", authController.forgotPassword);
 
 // [Post] Confirm Forgot Password
-router.post("/confirmForgotPassword/:uid", authController.confirmForgotPassword);
+router.post("/verifyOTP", authController.confirmForgotPassword);
+
+// [Post] Reset Password
+router.post("/resetPassword", verifyToken, authController.resetPassword);
 
 module.exports = router;
