@@ -12,7 +12,6 @@ const Device = new Schema(
         verify: { type: Boolean },
         device_online: { type: Boolean },
         device_type: { type: Number },
-        // device_code: { type: Number },
         device_data: { type: Object },
     },
     {

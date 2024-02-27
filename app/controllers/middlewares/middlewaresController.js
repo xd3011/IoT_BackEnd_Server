@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 import Home from "../../models/Home";
+import Room from "../../models/Room";
 import Device from "../../models/Device";
 
 const verifyToken = (req, res, next) => {
@@ -89,4 +90,35 @@ const checkOwnerDevice = async (req, res, next) => {
     }
 };
 
-module.exports = { verifyToken, checkAdmin, checkIsUser, checkOwnerInHome, checkUserInHome, checkOwnerDevice };
+const deviceInHome = async (req, res, next) => {
+    try {
+        const { did } = req.params;
+        if (!did) {
+            return res.status(404).json({ error: "Couldn't find device" });
+        }
+
+        const device = await Device.findById(did);
+        if (!device) {
+            return res.status(404).json({ error: "Device not found" });
+        }
+
+        const rid = device.device_in_room;
+        if (!rid) {
+            return res.status(404).json({ error: "Device not assigned to a room" });
+        }
+
+        const room = await Room.findById(rid);
+        if (!room) {
+            return res.status(404).json({ error: "Room not found" });
+        }
+
+        const hid = room.home_id.toString();
+        req.params.hid = hid;
+        next();
+    } catch (error) {
+        console.error("Error checking owner in home:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+module.exports = { verifyToken, checkAdmin, checkIsUser, checkOwnerInHome, checkUserInHome, checkOwnerDevice, deviceInHome };

@@ -154,7 +154,7 @@
 const express = require("express");
 const router = express.Router();
 import deviceController from "../app/controllers/services/deviceController"
-import { verifyToken, checkOwnerDevice } from "../app/controllers/middlewares/middlewaresController";
+import { verifyToken, checkOwnerDevice, deviceInHome, checkUserInHome } from "../app/controllers/middlewares/middlewaresController";
 
 // [Post] Create Device
 router.post("/", verifyToken, deviceController.createDevice);
@@ -174,5 +174,7 @@ router.delete("/deleteAllInRoom", verifyToken, checkOwnerDevice, deviceControlle
 // [Delete] Delete Device
 router.delete("/:did", verifyToken, checkOwnerDevice, deviceController.deleteDevice);
 
+// [POST] Control Device
+router.post("/:did", verifyToken, deviceInHome, checkUserInHome, deviceController.controlDevice);
 
 module.exports = router;

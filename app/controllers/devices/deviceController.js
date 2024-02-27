@@ -7,6 +7,7 @@ const publisherCreateDevice = async (device, topic) => {
             device_owner: device.device_owner,
             device_in_room: device.device_in_room,
             device_id: device._id,
+            device_type: device.device_type,
             mac_address: device.mac_address,
         };
         await mqtt.publishDeviceMqtt(data, topic);
@@ -64,9 +65,25 @@ const publisherChangeOwnerDevice = async (device, topic) => {
     }
 }
 
+const publisherControlDevice = async (device, topic) => {
+    try {
+        const data = {
+            action: 'control',
+            mac_address: device.mac_address,
+            device_type: device.device_type,
+            device_data: device.device_data,
+        }
+        await mqtt.publishDeviceMqtt(data, topic);
+    } catch (error) {
+        console.error('Error publishing delete device:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     publisherCreateDevice,
     publisherDeleteDevice,
     publisherMoveDevice,
     publisherChangeOwnerDevice,
+    publisherControlDevice,
 }

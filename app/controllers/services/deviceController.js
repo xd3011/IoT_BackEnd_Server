@@ -19,7 +19,7 @@ const createDevice = async (req, res) => {
         });
         await publisherDevice.publisherCreateDevice(newDevice, gateway_code);
         await newDevice.save();
-        return res.status(201).json({ message: "Device created successfully", devices: newDevice });
+        return res.status(201).json({ message: "Device created successfully" });
     } catch (error) {
         console.error("Error creating device:", error);
         return res.status(500).json({ error: "Internal Server Error" });
@@ -120,4 +120,24 @@ const deleteDeviceInRoom = async (req, res) => {
     }
 }
 
-module.exports = { createDevice, getDevice, editDevice, deleteDevice, changeOwnerDevice, deleteDeviceInRoom }
+const controlDevice = async (req, res) => {
+    try {
+        const { did } = req.params;
+        const { value } = req.body;
+        const device = await Device.findById(did);
+        if (!device) {
+            return res.status(404).json({ error: 'Device not found' });
+        }
+        device.device_data = {
+            value: value,
+        }
+        device.save();
+        publisherDevice.publisherControlDevice(device, device.gateway_code);
+        return res.status(200).json({ message: "Control successfully" });
+    } catch (error) {
+        console.error("Error deleting device:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+module.exports = { createDevice, getDevice, editDevice, deleteDevice, changeOwnerDevice, deleteDeviceInRoom, controlDevice }
