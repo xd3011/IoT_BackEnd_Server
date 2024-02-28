@@ -96,9 +96,9 @@ const login = async (req, res) => {
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
         // Create and save the refresh token for future refreshment
-        tokenController.createToken(user._id, refreshToken);
+        const indexToken = tokenController.createToken(user._id, refreshToken);
         // Return token information and user id
-        return res.status(200).json({ accessToken, refreshToken, uid: user._id, message: 'Login Successfully' });
+        return res.status(200).json({ indexToken, accessToken, refreshToken, uid: user._id, message: 'Login Successfully' });
     } catch (error) {
         console.error("Error during login:", error);
         return res.status(500).json({ error: "Internal Server Error" });
@@ -135,8 +135,9 @@ const refreshToken = async (req, res) => {
 const logout = async (req, res) => {
     try {
         const { uid } = req.params;
+        const { indexToken } = req.body;
         // Delete the refresh token from the storage
-        tokenController.deleteToken(uid);
+        tokenController.deleteToken(uid, indexToken);
         res.status(200).json("Logged out");
     } catch (error) {
         console.error("Error during logout:", error);
