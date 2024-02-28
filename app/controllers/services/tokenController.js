@@ -2,6 +2,7 @@ import Token from "../../models/Token";
 
 const createToken = async (uid, refreshToken) => {
     try {
+        let indexToken;
         // Check if a token already exists for the given user
         const token = await Token.findOne({ user_id: uid });
 
@@ -10,7 +11,8 @@ const createToken = async (uid, refreshToken) => {
             token.refresh_tokens.push(refreshToken);
             await token.save();
             console.log("Token updated successfully");
-            return (token.refresh_tokens.length - 1);
+            indexToken = token.refresh_tokens.length - 1;
+            return indexToken;
         } else {
             const newToken = new Token({
                 user_id: uid,

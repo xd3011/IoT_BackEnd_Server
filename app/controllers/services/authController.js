@@ -92,13 +92,14 @@ const login = async (req, res) => {
         if (!user.verify) {
             return res.status(401).json({ error: "Account is not verified" });
         }
+        const isAdmin = user.role === "admin" ? 1 : 0;
         // Generate access and refresh tokens
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
         // Create and save the refresh token for future refreshment
-        const indexToken = tokenController.createToken(user._id, refreshToken);
+        const indexToken = await tokenController.createToken(user._id, refreshToken);
         // Return token information and user id
-        return res.status(200).json({ indexToken, accessToken, refreshToken, uid: user._id, message: 'Login Successfully' });
+        return res.status(200).json({ indexToken, accessToken, refreshToken, uid: user._id, message: 'Login Successfully', isAdmin });
     } catch (error) {
         console.error("Error during login:", error);
         return res.status(500).json({ error: "Internal Server Error" });
