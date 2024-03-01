@@ -232,7 +232,10 @@ router.delete("/removeHome", verifyToken, checkIsUser, userController.deleteUser
 router.get("/", verifyToken, checkAdmin, userController.getAllUser);
 
 // [Delete] Delete User
-router.delete("/deleteUser", verifyToken, checkAdmin, userController.deleteUser);
+router.delete("/", verifyToken, checkAdmin, userController.deleteUser);
+
+// // [Put] Edit User By Admin
+// router.put("/editUser", verifyToken, checkAdmin, userController.editUser);
 
 // [Post] Create Account Admin
 router.post("/createAccountAdmin", verifyToken, checkAdmin, userController.createAdmin);

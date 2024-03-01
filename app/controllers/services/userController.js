@@ -70,10 +70,10 @@ const getAllUser = async (req, res) => {
         if (!users || users.length === 0) {
             return res.status(200).json({ message: "No users found", users: [] });
         }
-        return res.status(200).json(users);
+        return res.status(200).json({ message: "Get user successfully", users: users });
     } catch (error) {
         console.error("Error fetching user(s):", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
@@ -82,12 +82,12 @@ const deleteUser = async (req, res) => {
         const { uid } = req.body;
         const user = await User.findByIdAndDelete(uid);
         if (!user) {
-            return res.status(404).json({ message: "User not found or already deleted" });
+            return res.status(404).json({ error: "User not found or already deleted" });
         }
-        return res.status(200).json({ message: "User deleted successfully", deletedUser: user });
+        return res.status(200).json({ message: "User deleted successfully" });
     } catch (error) {
         console.error("Error deleting user:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
