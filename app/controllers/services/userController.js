@@ -1,5 +1,6 @@
 import User from '../../models/User';
 import Home from '../../models/Home';
+import bcrypt from "bcrypt";
 import { mailSendConfirmAccount } from "../../../utils/mail";
 
 
@@ -135,13 +136,31 @@ const changeToAdmin = async (req, res) => {
         }
         user.role = "admin";
         await user.save();
-        return res.status(200).json({ message: "User role changed to admin successfully", updatedUser: user });
+        return res.status(200).json({ message: "User role changed to admin successfully" });
     } catch (error) {
         console.error("Error changing user role to admin:", error);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
+const changeToUser = async (req, res) => {
+    try {
+        const { uid } = req.body;
+        const user = await User.findById(uid);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        if (user.role === "user") {
+            return res.status(400).json({ error: "User is already an user" });
+        }
+        user.role = "user";
+        await user.save();
+        return res.status(200).json({ message: "User role changed successfully" });
+    } catch (error) {
+        console.error("Error changing user role:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
 
 const getUser = async (uid) => {
     try {
@@ -228,4 +247,4 @@ const updateUserProfile = async (req, res) => {
     }
 }
 
-module.exports = { userInHome, addUserToHome, deleteUserFromHome, getAllUser, deleteUser, getUser, createAdmin, changeToAdmin, getUserProfile, updateUserProfile }
+module.exports = { userInHome, addUserToHome, deleteUserFromHome, getAllUser, deleteUser, getUser, createAdmin, changeToAdmin, changeToUser, getUserProfile, updateUserProfile }
