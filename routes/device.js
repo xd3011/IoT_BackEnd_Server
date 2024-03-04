@@ -172,7 +172,7 @@ router.put("/edit/:did", verifyToken, checkOwnerDevice, deviceController.editDev
 router.put("/change/:did", verifyToken, checkOwnerDevice, deviceController.changeOwnerDevice);
 
 // [Delete] Delete All Devices In Room
-router.delete("/deleteAllInRoom", verifyToken, checkOwnerDevice, deviceController.deleteDeviceInRoom);
+router.delete("/deleteAllInRoom", verifyToken, deviceController.deleteDeviceInRoom);
 
 // [Delete] Delete Device
 router.delete("/:did", verifyToken, checkOwnerDevice, deviceController.deleteDevice);

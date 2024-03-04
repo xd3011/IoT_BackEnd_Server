@@ -108,17 +108,21 @@ const deleteDevice = async (req, res) => {
 const deleteDeviceInRoom = async (req, res) => {
     try {
         const { rid } = req.body;
-        const device = await Device.deleteMany({ device_in_room: rid });
-        if (!device) {
-            return res.status(404).json({ error: "Device not found" })
+        const devices = await Device.find({ device_in_room: rid });
+        if (!devices || devices.length === 0) {
+            return res.status(404).json({ error: "Devices not found in the room" });
         }
-        publisherDevice.publisherDeleteDevice(device, device.gateway_code);
-        return res.status(200).json({ message: "Device deleted successfully" });
+        for (let i = 0; i < devices.length; i++) {
+            const device = devices[i];
+            await Device.deleteOne({ _id: device._id });
+            publisherDevice.publisherDeleteDevice(device, device.gateway_code);
+        }
+        return res.status(200).json({ message: "All devices in the room deleted successfully" });
     } catch (error) {
-        console.error("Error deleting device:", error);
+        console.error("Error deleting devices:", error);
         return res.status(500).json({ error: "Internal Server Error" });
     }
-}
+};
 
 const controlDevice = async (req, res) => {
     try {
