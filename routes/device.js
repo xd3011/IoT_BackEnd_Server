@@ -162,6 +162,9 @@ router.post("/", verifyToken, deviceController.createDevice);
 // [Get] Get Device
 router.get("/:rid", verifyToken, deviceController.getDevice);
 
+// [PUT] Control Device
+router.put("/:did", verifyToken, deviceController.controlDevice);
+
 // [Put] Edit Device
 router.put("/edit/:did", verifyToken, checkOwnerDevice, deviceController.editDevice);
 

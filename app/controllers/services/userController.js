@@ -29,7 +29,7 @@ const addUserToHome = async (req, res) => {
         const { uid, hid } = req.body;
         const user = await User.findById(uid);
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ error: "User not found" });
         }
         // Assuming Home is your mongoose model
         const home = await Home.findById(hid);
@@ -38,7 +38,7 @@ const addUserToHome = async (req, res) => {
         return res.status(200).json({ message: "User added to home successfully", updatedHome: home });
     } catch (error) {
         console.error("Error adding user to home:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
@@ -48,7 +48,7 @@ const deleteUserFromHome = async (req, res) => {
         // Assuming Home is your mongoose model
         const home = await Home.findById(hid);
         if (home.home_owner === uid) {
-            return res.status(403).json({ message: "Cannot remove from the home" });
+            return res.status(403).json({ error: "Cannot remove from the home" });
         }
         const index = home.user_in_home.indexOf(uid);
         if (index !== -1) {
@@ -56,7 +56,7 @@ const deleteUserFromHome = async (req, res) => {
             await home.save();
             return res.status(200).json({ message: "User removed from home successfully", updatedHome: home });
         } else {
-            return res.status(404).json({ message: "User not found in home" });
+            return res.status(404).json({ error: "User not found in home" });
         }
     } catch (error) {
         console.error("Error deleting user from home:", error);
@@ -66,8 +66,13 @@ const deleteUserFromHome = async (req, res) => {
 
 const getAllUser = async (req, res) => {
     try {
-        const users = await User.find();
-        // Always check for an empty array, not just "truthiness"
+        let query = {};
+        const searchQuery = req.query.search;
+        if (searchQuery) {
+            const searchRegex = new RegExp(searchQuery, 'i');
+            query = { $or: [{ name: searchRegex }, { email: searchRegex }] };
+        }
+        const users = await User.find(query);
         if (!users || users.length === 0) {
             return res.status(200).json({ message: "No users found", users: [] });
         }
@@ -77,6 +82,7 @@ const getAllUser = async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
 
 const deleteUser = async (req, res) => {
     try {
