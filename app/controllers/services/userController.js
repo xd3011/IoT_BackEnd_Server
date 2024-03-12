@@ -98,38 +98,6 @@ const deleteUser = async (req, res) => {
     }
 };
 
-const createAdmin = async (req, res) => {
-    try {
-        const { email, phone, user_name, pass_word, name } = req.body;
-        // Validate that either email or phone is provided
-        if (!email && !phone) {
-            return res.status(400).json({ error: "Email or phone is required for registration." });
-        }
-        // Create password hash
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(pass_word, salt);
-        // Create and save User
-        const newUser = new User({
-            email,
-            phone,
-            user_name,
-            pass_word: hashedPassword,
-            verify: email ? false : true, // Set verify to false if email is provided
-            role: "admin",
-            name,
-        });
-        await newUser.save();
-        return res.status(200).json({ message: "Admin account created successfully" });
-    } catch (error) {
-        // Handle duplicate user_name error
-        if (error.code === 11000 && error.keyPattern.user_name) {
-            return res.status(409).json({ error: "Username already exists." });
-        }
-        console.error("Error in registration:", error);
-        return res.status(500).json({ error: "Internal Server Error" });
-    }
-};
-
 const changeToAdmin = async (req, res) => {
     try {
         const { uid } = req.body;
@@ -200,6 +168,47 @@ const getUserProfile = async (req, res) => {
     }
 }
 
+const editUser = async (req, res) => {
+    try {
+        const { uid } = req.body;
+        const user = await User.findById(uid);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        else {
+            const { name, age, gender, email, phone, address, about } = req.body;
+            if (name) {
+                user.name = name;
+            }
+            if (age) {
+                user.age = age;
+            }
+            if (gender) {
+                user.gender = gender;
+            }
+            if (email) {
+                user.email = email;
+                // Confirm Email;
+            }
+            if (phone) {
+                user.phone = phone;
+                // Confirm Phone Number
+            }
+            if (address) {
+                user.address = address;
+            }
+            if (about) {
+                user.about = about;
+            }
+            user.save();
+            return res.status(200).json({ message: 'Edit user successfully' });
+        }
+    } catch {
+        console.error("Error save user profile", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
 const updateUserProfile = async (req, res) => {
     try {
         const { uid } = req.user;
@@ -253,4 +262,4 @@ const updateUserProfile = async (req, res) => {
     }
 }
 
-module.exports = { userInHome, addUserToHome, deleteUserFromHome, getAllUser, deleteUser, getUser, createAdmin, changeToAdmin, changeToUser, getUserProfile, updateUserProfile }
+module.exports = { userInHome, addUserToHome, deleteUserFromHome, getAllUser, deleteUser, getUser, changeToAdmin, changeToUser, getUserProfile, updateUserProfile, editUser }

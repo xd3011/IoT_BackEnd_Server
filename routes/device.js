@@ -160,10 +160,10 @@ import { verifyToken, checkOwnerDevice, deviceInHome, checkUserInHome } from "..
 router.post("/", verifyToken, deviceController.createDevice);
 
 // [Get] Get Device
-router.get("/:rid", verifyToken, deviceController.getDevice);
+router.get("/:hid", verifyToken, deviceController.getDevice);
 
 // [PUT] Control Device
-router.put("/:did", verifyToken, deviceController.controlDevice);
+router.put("/:did", verifyToken, deviceInHome, checkUserInHome, deviceController.controlDevice);
 
 // [Put] Edit Device
 router.put("/edit/:did", verifyToken, checkOwnerDevice, deviceController.editDevice);
@@ -171,13 +171,16 @@ router.put("/edit/:did", verifyToken, checkOwnerDevice, deviceController.editDev
 // [Put] Change Owner Device
 router.put("/change/:did", verifyToken, checkOwnerDevice, deviceController.changeOwnerDevice);
 
+// [Put] Change room Device
+router.put("/changeRoomDevice/:did", verifyToken, deviceController.changeRoomDevice);
+
+// [Delete] Delete All Devices In Room
+router.delete("/deleteAllInHome", verifyToken, deviceController.deleteDeviceInHome);
+
 // [Delete] Delete All Devices In Room
 router.delete("/deleteAllInRoom", verifyToken, deviceController.deleteDeviceInRoom);
 
 // [Delete] Delete Device
 router.delete("/:did", verifyToken, checkOwnerDevice, deviceController.deleteDevice);
-
-// [POST] Control Device
-router.post("/:did", verifyToken, deviceInHome, checkUserInHome, deviceController.controlDevice);
 
 module.exports = router;

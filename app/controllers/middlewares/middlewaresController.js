@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
 import Home from "../../models/Home";
-import Room from "../../models/Room";
 import Device from "../../models/Device";
 
 const verifyToken = (req, res, next) => {
@@ -102,17 +101,11 @@ const deviceInHome = async (req, res, next) => {
             return res.status(404).json({ error: "Device not found" });
         }
 
-        const rid = device.device_in_room;
-        if (!rid) {
+        const hid = device.device_in_home;
+        if (!hid) {
             return res.status(404).json({ error: "Device not assigned to a room" });
         }
 
-        const room = await Room.findById(rid);
-        if (!room) {
-            return res.status(404).json({ error: "Room not found" });
-        }
-
-        const hid = room.home_id.toString();
         req.params.hid = hid;
         next();
     } catch (error) {

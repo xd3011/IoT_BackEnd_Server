@@ -5,6 +5,7 @@ const { Schema, Types } = mongoose; // Destructure Types from mongoose
 const Device = new Schema(
     {
         device_owner: { type: Types.ObjectId, ref: 'User' },
+        device_in_home: { type: Types.ObjectId, ref: 'Home' },
         device_in_room: { type: Types.ObjectId, ref: 'Room' },
         device_name: { type: String },
         gateway_code: { type: String },
