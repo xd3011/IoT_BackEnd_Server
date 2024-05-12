@@ -83,10 +83,9 @@ const publisherChangeOwnerDevice = async (device, topic) => {
 const publisherControlDevice = async (device, topic) => {
     try {
         const data = {
-            action: 'control',
-            mac_address: device.mac_address,
-            device_type: device.device_type,
-            device_data: device.device_data,
+            action: 5,
+            addr: device.ble_address,
+            state: device.device_data.value,
         }
         await mqtt.publishDeviceMqtt(data, topic);
     } catch (error) {

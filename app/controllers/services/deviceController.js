@@ -196,10 +196,10 @@ const controlDevice = async (req, res) => {
         const device = await Device.findById(did);
         if (!device) {
             return res.status(404).json({ error: 'Device not found' });
-        }
+        };
         device.device_data = {
             value: value,
-        }
+        };
         device.save();
         publisherDevice.publisherControlDevice(device, device.gateway_code);
         return res.status(200).json({ message: "Control successfully" });
