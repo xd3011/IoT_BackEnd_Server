@@ -4,22 +4,39 @@ import publisherDevice from "../devices/deviceController";
 const createDevice = async (req, res) => {
     try {
         const { uid } = req.user;
-        const { hid, device_name, gateway_code, mac_address, device_type } = req.body;
+        const { hid, device_name, gateway_code, mac_address, device_type, addr_type, dev_uuid, oob_info, bearer } = req.body;
+        console.log(hid);
         // Assuming Device is your mongoose model
         const newDevice = new Device({
             device_owner: uid,
             device_in_home: hid,
             device_name,
-            gateway_code,
             mac_address,
             device_type,
             verify: false,
             device_online: false,
             device_data: {}
         });
-        await publisherDevice.publisherCreateDevice(newDevice, gateway_code);
+        console.log(newDevice);
+        if (device_type != 2) {
+            newDevice.gateway_code = gateway_code;
+            const device = {
+                "action": 4,
+                "addr": mac_address,
+                device_type,
+                addr_type,
+                dev_uuid,
+                oob_info,
+                bearer,
+                device_name,
+            };
+            await publisherDevice.publisherCreateDevice(device, gateway_code);
+        }
+        else {
+            await publisherDevice.publisherCreateDevice(newDevice, mac_address);
+        }
         await newDevice.save();
-        return res.status(201).json({ message: "Device created successfully" });
+        return res.status(201).json({ message: "Device created successfully", device: newDevice });
     } catch (error) {
         console.error("Error creating device:", error);
         return res.status(500).json({ error: "Internal Server Error" });
@@ -40,6 +57,20 @@ const getDevice = async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+const getDeviceDetail = async (req, res) => {
+    try {
+        const { did } = req.params;
+        const device = await Device.findById(did);
+        if (!device) {
+            return res.status(404).json({ error: "Device not found" });
+        }
+        return res.status(200).json({ message: "Get Device successfully", device: device });
+    } catch (error) {
+        console.error("Error fetching devices:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
 
 const editDevice = async (req, res) => {
     try {
@@ -178,4 +209,24 @@ const controlDevice = async (req, res) => {
     }
 }
 
-module.exports = { createDevice, getDevice, editDevice, deleteDevice, changeOwnerDevice, deleteDeviceInHome, deleteDeviceInRoom, controlDevice, changeRoomDevice }
+const gatewayScanDevice = async (req, res) => {
+    try {
+        const { did } = req.params;
+        const { action } = req.body;
+        const device = await Device.findById(did);
+        if (!device) {
+            return res.status(404).json({ error: 'Device not found' });
+        }
+        if (device.device_type != 2) {
+            return res.status(404).json({ error: 'This device is not a gateway' });
+        } else {
+            publisherDevice.publisherScanDevice(action, device.mac_address);
+            return res.status(200).json({ message: "Scan device successfully" });
+        }
+    } catch (error) {
+        console.error("Error scan device:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+module.exports = { createDevice, getDevice, getDeviceDetail, editDevice, deleteDevice, changeOwnerDevice, deleteDeviceInHome, deleteDeviceInRoom, controlDevice, changeRoomDevice, gatewayScanDevice }

@@ -43,9 +43,14 @@ async function handleCreate(data) {
     try {
         const create = data.toString();
         const createData = JSON.parse(create);
-        const device = await Device.findById(createData.device_id);
+        const device = await Device.findOne({ mac_address: createData.mac_address });
         if (device) {
             device.verify = true;
+            if (device.device_type === 0 || device.device_type === 1) {
+                device.ble_address = createData.unicast_addr;
+                device.device_data = { value: 1 };
+            }
+            else if (device.device_type === 2) { }
             await device.save();
         }
     } catch (error) {

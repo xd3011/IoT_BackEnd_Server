@@ -162,6 +162,12 @@ router.post("/", verifyToken, deviceController.createDevice);
 // [Get] Get Device
 router.get("/:hid", verifyToken, deviceController.getDevice);
 
+// [Get] Get Device Detail
+router.get("/detail/:did", verifyToken, deviceController.getDeviceDetail);
+
+// [Post] Gateway Scan Device
+router.post("/scan/:did", verifyToken, deviceController.gatewayScanDevice);
+
 // [PUT] Control Device
 router.put("/:did", verifyToken, deviceInHome, checkUserInHome, deviceController.controlDevice);
 

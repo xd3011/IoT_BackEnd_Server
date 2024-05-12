@@ -14,6 +14,7 @@ const Device = new Schema(
         device_online: { type: Boolean },
         device_type: { type: Number },
         device_data: { type: Object },
+        ble_address: { type: String },
     },
     {
         timestamps: true,

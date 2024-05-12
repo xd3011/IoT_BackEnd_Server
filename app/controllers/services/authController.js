@@ -10,6 +10,7 @@ import { generateAccessToken, generateRefreshToken } from "../../../utils/token"
 const register = async (req, res) => {
     try {
         const { email, phone, user_name, pass_word, name } = req.body;
+        console.log(email, phone, user_name, pass_word, name);
 
         // Validate that either email or phone is provided
         if (!email && !phone) {
@@ -137,9 +138,10 @@ const logout = async (req, res) => {
     try {
         const { uid } = req.params;
         const { indexToken } = req.body;
+        console.log(uid, indexToken);
         // Delete the refresh token from the storage
         tokenController.deleteToken(uid, indexToken);
-        res.status(200).json("Logged out");
+        res.status(200).json({ message: "Logged out" });
     } catch (error) {
         console.error("Error during logout:", error);
         res.status(500).json({ error: "Internal Server Error" });
