@@ -17,7 +17,7 @@ const createHome = async (req, res) => {
         newHome.user_in_home.push(uid);
         // Save the updated home to the database
         await newHome.save();
-        return res.status(201).send({ message: "Create home successfully" });
+        return res.status(201).send({ message: "Create home successfully", home: newHome });
     } catch (error) {
         console.error("Error creating home:", error);
         return res.status(500).send({ error: "Internal Server Error" });
@@ -48,8 +48,12 @@ const editHome = async (req, res) => {
         if (!home) {
             return res.status(404).json({ message: "Home not found" });
         }
-        home.home_name = home_name;
-        home.address = address;
+        if (home_name) {
+            home.home_name = home_name;
+        }
+        if (address) {
+            home.address = address;
+        }
         await home.save();
         return res.status(200).json({ message: "Home updated successfully", home });
     } catch (error) {

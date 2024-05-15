@@ -11,9 +11,9 @@ const userInHome = async (req, res) => {
         if (!home) {
             return res.status(404).json({ error: 'Home not found' });
         }
-        const users = await Promise.all(home.user_in_home.map(userId => getUser(userId)));
+        const users = await Promise.all(home.user_in_home.map(userId => User.findById(userId).select('-user_name -password')));
         const adminId = home.home_owner;
-        const homeAdmin = await User.findById(adminId);
+        const homeAdmin = await User.findById(adminId).select('-user_name -password');
         if (!homeAdmin) {
             return res.status(404).json({ error: 'Admin Error' });
         }

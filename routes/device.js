@@ -180,7 +180,7 @@ router.put("/change/:did", verifyToken, checkOwnerDevice, deviceController.chang
 // [Put] Change room Device
 router.put("/changeRoomDevice/:did", verifyToken, deviceController.changeRoomDevice);
 
-// [Delete] Delete All Devices In Room
+// [Delete] Delete All Devices In Home
 router.delete("/deleteAllInHome", verifyToken, deviceController.deleteDeviceInHome);
 
 // [Delete] Delete All Devices In Room
