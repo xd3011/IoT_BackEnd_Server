@@ -218,6 +218,15 @@ const updateUserProfile = async (req, res) => {
         }
         else {
             const { name, age, gender, email, phone, address, about } = req.body;
+            if (name && age && gender && address && about) {
+                user.name = name;
+                user.age = age;
+                user.gender = gender;
+                user.address = address;
+                user.about = about;
+                await user.save();
+                return res.status(200).json({ message: 'Update user profile successfully', user: user });
+            }
             if (name) {
                 user.name = name;
                 await user.save();
@@ -253,7 +262,7 @@ const updateUserProfile = async (req, res) => {
             if (about) {
                 user.about = about;
                 await user.save();
-                return res.status(200).json({ message: 'Update about successfully' });
+                return res.status(200).json({ message: 'Update about successfully', user: user });
             }
         }
     } catch {

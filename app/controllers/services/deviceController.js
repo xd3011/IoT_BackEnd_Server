@@ -107,9 +107,11 @@ const changeRoomDevice = async (req, res) => {
         if (device.device_in_room == rid) {
             return res.status(404).json({ error: "The device is already in this room" })
         }
-        device.device_in_room = rid;
-        await device.save();
-        publisherDevice.publisherMoveDevice(device, device.gateway_code);
+        if (rid) {
+            await Device.updateOne({ _id: device._id }, { device_in_room: rid });
+        } else {
+            await Device.updateOne({ _id: device._id }, { $unset: { device_in_room: "" } });
+        }
         return res.status(200).json({ message: "Device change room successfully" });
     } catch (error) {
         console.error("Error changing device owner:", error);

@@ -220,7 +220,7 @@ import { verifyToken, checkAdmin, checkOwnerInHome, checkIsUser } from "../app/c
 router.get("/getUserInHome/:hid", verifyToken, userController.userInHome);
 
 // [Post] Add User To Home
-router.post("/addUserToHome", verifyToken, checkOwnerInHome, userController.addUserToHome);
+router.post("/addUserToHome", verifyToken, userController.addUserToHome);
 
 // [Delete] Delete User To Home
 router.delete("/deleteUserFromHome", verifyToken, checkOwnerInHome, userController.deleteUserFromHome);
