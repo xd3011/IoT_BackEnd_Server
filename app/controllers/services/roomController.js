@@ -60,7 +60,7 @@ const editRoom = async (req, res) => {
         room.room_name = room_name;
         await room.save();
 
-        return res.status(200).json({ message: "Room updated successfully" });
+        return res.status(200).json({ message: "Room updated successfully", room: room });
     } catch (error) {
         console.error("Error editing room:", error);
         return res.status(500).json({ error: "Internal Server Error" });
@@ -75,7 +75,7 @@ const deleteRoom = async (req, res) => {
         if (!room) {
             return res.status(404).json({ error: "Room not found" });
         }
-        return res.status(200).json({ message: "Room deleted successfully" });
+        return res.status(200).json({ message: "Room deleted successfully", room: room });
     } catch (error) {
         console.error("Error deleting room:", error);
         return res.status(500).json({ error: "Internal Server Error" });
