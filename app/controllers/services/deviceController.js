@@ -161,7 +161,7 @@ const deleteDeviceInHome = async (req, res) => {
         const { hid } = req.body;
         const devices = await Device.find({ device_in_home: hid });
         if (!devices || devices.length === 0) {
-            return res.status(404).json({ error: "Devices not found in the home" });
+            return res.status(200).json({ message: "No devices found with the specified home_id" });
         }
         for (let i = 0; i < devices.length; i++) {
             const device = devices[i];

@@ -87,7 +87,7 @@ const deleteRoomInHome = async (req, res) => {
         const { hid } = req.body;
         const result = await Room.deleteMany({ home_id: hid });
         if (result.deletedCount === 0) {
-            return res.status(404).json({ error: "No rooms found with the specified home_id" });
+            return res.status(200).json({ message: "No rooms found with the specified home_id" });
         }
         return res.status(200).json({ message: "All rooms in the home deleted successfully" });
     } catch (error) {
