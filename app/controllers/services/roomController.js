@@ -9,7 +9,7 @@ const createRoom = async (req, res) => {
             home_id: hid,
         });
         await newRoom.save();
-        return res.status(201).json({ message: "Room created successfully" });
+        return res.status(201).json({ message: "Room created successfully", room: newRoom });
     } catch (error) {
         console.error("Error creating room:", error);
         return res.status(500).json({ message: "Internal Server Error" });

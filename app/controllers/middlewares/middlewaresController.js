@@ -34,7 +34,10 @@ const checkIsUser = (req, res, next) => {
 
 const checkOwnerInHome = async (req, res, next) => {
     try {
-        const { hid } = req.params;
+        let { hid } = req.params;
+        if (!hid) {
+            hid = req.body.hid;
+        }
         const home = await Home.findById(hid);
         if (!home) {
             return res.status(404).json({ error: "Home not found" });
