@@ -1,6 +1,7 @@
 
 const mqtt = require('mqtt');
 import Device from '../../app/models/Device'
+import { handleSend } from '../../server';
 
 var options = {
     host: 'broker.hivemq.com',
@@ -12,11 +13,14 @@ async function mqttconnect() {
     try {
         client.on('connect', async () => {
             console.log('MQTT Connected');
-            client.subscribe(['home_iot/create', 'home_iot/state', 'home_iot/delete']);
+            client.subscribe(['home_iot/create', 'home_iot/state', 'home_iot/delete', 'home_iot/gatewayScan']);
         });
 
         client.on('message', async (topic, data) => {
             switch (topic) {
+                case 'home_iot/gatewayScan':
+                    handleGatewayScan(data);
+                    break;
                 case 'home_iot/create':
                     await handleCreate(data);
                     break;
@@ -37,6 +41,17 @@ async function mqttconnect() {
     } catch (error) {
         console.error('fallmqtt', error);
     }
+}
+
+const handleGatewayScan = (data) => {
+    try {
+        const scan = data.toString();
+        const scanData = JSON.parse(scan);
+        handleSend(scanData);
+    } catch (error) {
+        console.error('Error parsing or processing scan request:', error);
+    }
+
 }
 
 async function handleCreate(data) {
