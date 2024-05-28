@@ -3,6 +3,7 @@ const userRouter = require("./user");
 const homeRouter = require("./home");
 const roomRouter = require("./room");
 const deviceRouter = require("./device");
+const deviceTypeRouter = require("./deviceType");
 
 function route(app) {
 
@@ -20,6 +21,9 @@ function route(app) {
 
     // Create router for Device
     app.use("/api/device", deviceRouter);
+
+    // Create router for Device Type
+    app.use("/api/deviceType", deviceTypeRouter);
 }
 
 module.exports = { route };

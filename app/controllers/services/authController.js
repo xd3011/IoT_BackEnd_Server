@@ -10,7 +10,6 @@ import { generateAccessToken, generateRefreshToken } from "../../../utils/token"
 const register = async (req, res) => {
     try {
         const { email, phone, user_name, pass_word, name } = req.body;
-        console.log(email, phone, user_name, pass_word, name);
 
         // Validate that either email or phone is provided
         if (!email && !phone) {

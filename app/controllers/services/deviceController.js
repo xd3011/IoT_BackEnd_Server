@@ -1,11 +1,11 @@
 import Device from "../../models/Device";
+import DeviceType from "../../models/DeviceType";
 import publisherDevice from "../devices/deviceController";
 
 const createDevice = async (req, res) => {
     try {
         const { uid } = req.user;
         const { hid, device_name, gateway_code, mac_address, device_type, addr_type, dev_uuid, oob_info, bearer } = req.body;
-        console.log(hid);
         // Assuming Device is your mongoose model
         const newDevice = new Device({
             device_owner: uid,
@@ -17,24 +17,44 @@ const createDevice = async (req, res) => {
             device_online: false,
             device_data: {}
         });
-        console.log(newDevice);
-        if (device_type != 2) {
-            newDevice.gateway_code = gateway_code;
-            const device = {
-                "action": 4,
-                "addr": mac_address,
-                device_type,
-                addr_type,
-                dev_uuid,
-                oob_info,
-                bearer,
-                device_name,
-            };
-            await publisherDevice.publisherCreateDevice(device, gateway_code);
+        // Remove the declaration of the unused variable
+        let type = DeviceType.find(dt => dt._id == device_type);
+
+        if (type) {
+            if (type.name.includes("Gateway")) {
+                await publisherDevice.publisherCreateDevice(newDevice, mac_address);
+            } else {
+                newDevice.gateway_code = gateway_code;
+                const device = {
+                    "action": 4,
+                    "addr": mac_address,
+                    device_type,
+                    addr_type,
+                    dev_uuid,
+                    oob_info,
+                    bearer,
+                    device_name,
+                };
+                await publisherDevice.publisherCreateDevice(device, gateway_code);
+            }
         }
-        else {
-            await publisherDevice.publisherCreateDevice(newDevice, mac_address);
-        }
+        // if (device_type != 2) {
+        //     newDevice.gateway_code = gateway_code;
+        //     const device = {
+        //         "action": 4,
+        //         "addr": mac_address,
+        //         device_type,
+        //         addr_type,
+        //         dev_uuid,
+        //         oob_info,
+        //         bearer,
+        //         device_name,
+        //     };
+        //     await publisherDevice.publisherCreateDevice(device, gateway_code);
+        // }
+        // else {
+        //     await publisherDevice.publisherCreateDevice(newDevice, mac_address);
+        // }
         await newDevice.save();
         return res.status(201).json({ message: "Device created successfully", device: newDevice });
     } catch (error) {

@@ -12,7 +12,7 @@ const Device = new Schema(
         mac_address: { type: String },
         verify: { type: Boolean },
         device_online: { type: Boolean },
-        device_type: { type: Number },
+        device_type: { type: Types.ObjectId, ref: 'DeviceType' }, // Updated this line
         device_data: { type: Object },
         ble_address: { type: String },
     },
