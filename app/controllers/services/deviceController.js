@@ -222,7 +222,7 @@ const gatewayScanDevice = async (req, res) => {
         if (!device) {
             return res.status(404).json({ error: 'Device not found' });
         }
-        const deviceType = DeviceType.find(dt => dt._id == device.device_type);
+        const deviceType = await DeviceType.findById(device.device_type);
         if (!deviceType || !deviceType.name.includes("Gateway")) {
             return res.status(404).json({ error: 'This device is not a gateway' });
         } else {
