@@ -38,23 +38,6 @@ const createDevice = async (req, res) => {
                 await publisherDevice.publisherCreateDevice(device, gateway_code);
             }
         }
-        // if (device_type != 2) {
-        //     newDevice.gateway_code = gateway_code;
-        //     const device = {
-        //         "action": 4,
-        //         "addr": mac_address,
-        //         device_type,
-        //         addr_type,
-        //         dev_uuid,
-        //         oob_info,
-        //         bearer,
-        //         device_name,
-        //     };
-        //     await publisherDevice.publisherCreateDevice(device, gateway_code);
-        // }
-        // else {
-        //     await publisherDevice.publisherCreateDevice(newDevice, mac_address);
-        // }
         await newDevice.save();
         return res.status(201).json({ message: "Device created successfully", device: newDevice });
     } catch (error) {
@@ -239,7 +222,8 @@ const gatewayScanDevice = async (req, res) => {
         if (!device) {
             return res.status(404).json({ error: 'Device not found' });
         }
-        if (device.device_type != 2) {
+        const deviceType = DeviceType.find(dt => dt._id == device.device_type);
+        if (!deviceType || !deviceType.name.includes("Gateway")) {
             return res.status(404).json({ error: 'This device is not a gateway' });
         } else {
             publisherDevice.publisherScanDevice(action, device.mac_address);
