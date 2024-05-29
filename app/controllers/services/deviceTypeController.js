@@ -1,8 +1,9 @@
 import DeviceType from "../../models/DeviceType";
 
 const createDeviceType = async (req, res) => {
-    const { name, image } = req.body;
+    const { type, name, image } = req.body;
     const newDeviceType = new DeviceType({
+        type,
         name,
         image,
     });
@@ -27,14 +28,21 @@ const getDeviceType = async (req, res) => {
 
 const editDeviceType = async (req, res) => {
     const { dtid } = req.params;
-    const { name, image } = req.body;
+    const { type, name, image } = req.body;
     try {
         const deviceType = await DeviceType.findById(dtid);
         if (!deviceType) {
             return res.status(404).json({ error: "Device type not found" });
         }
-        deviceType.name = name;
-        deviceType.image = image;
+        if (type) {
+            deviceType.type = type;
+        }
+        if (name) {
+            deviceType.name = name;
+        }
+        if (image) {
+            deviceType.image = image;
+        }
         await deviceType.save();
         return res.status(200).json({ message: "Update Device Type Successfully" });
     } catch (error) {
