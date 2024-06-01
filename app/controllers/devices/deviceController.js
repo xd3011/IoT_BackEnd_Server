@@ -1,20 +1,8 @@
 import mqtt from "../../../configs/mqtt/index";
 
-const publisherCreateDevice = async (device, topic) => {
+const publisherCreateDevice = async (device, topic, type) => {
     try {
-        if (device.device_type === 0 || device.device_type === 1) {
-            const data = {
-                action: 4,
-                addr: device.addr,
-                addr_type: device.addr_type,
-                dev_uuid: device.dev_uuid,
-                oob_info: device.oob_info,
-                bearer: device.bearer,
-                // device_name: device.device_name,
-            }
-            await mqtt.publishDeviceMqtt(data, topic);
-        }
-        else {
+        if (type && type.name.includes("Gateway")) {
             const data = {
                 action: 1,
                 device_owner: device.device_owner,
@@ -24,6 +12,18 @@ const publisherCreateDevice = async (device, topic) => {
                 mac_address: device.mac_address,
                 // device_name: device.device_name,
             };
+            await mqtt.publishDeviceMqtt(data, topic);
+        }
+        else {
+            const data = {
+                action: 4,
+                addr: device.addr,
+                addr_type: device.addr_type,
+                dev_uuid: device.dev_uuid,
+                oob_info: device.oob_info,
+                bearer: device.bearer,
+                // device_name: device.device_name,
+            }
             await mqtt.publishDeviceMqtt(data, topic);
         }
     } catch (error) {

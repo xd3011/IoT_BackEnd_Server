@@ -22,7 +22,7 @@ const createDevice = async (req, res) => {
 
         if (type) {
             if (type.name.includes("Gateway")) {
-                await publisherDevice.publisherCreateDevice(newDevice, mac_address);
+                await publisherDevice.publisherCreateDevice(newDevice, mac_address, type);
             } else {
                 newDevice.gateway_code = gateway_code;
                 const device = {
@@ -35,7 +35,7 @@ const createDevice = async (req, res) => {
                     bearer,
                     device_name,
                 };
-                await publisherDevice.publisherCreateDevice(device, gateway_code);
+                await publisherDevice.publisherCreateDevice(device, gateway_code, type);
             }
         }
         await newDevice.save();
