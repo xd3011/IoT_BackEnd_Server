@@ -18,7 +18,7 @@ const createDevice = async (req, res) => {
             device_data: {}
         });
         // Remove the declaration of the unused variable
-        let type = DeviceType.find(dt => dt._id == device_type);
+        let type = await DeviceType.findById(device_type);
 
         if (type) {
             if (type.name.includes("Gateway")) {
