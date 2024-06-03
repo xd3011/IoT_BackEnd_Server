@@ -61,11 +61,12 @@ async function handleCreate(data) {
         const device = await Device.findOne({ mac_address: createData.mac_address });
         if (device) {
             device.verify = true;
-            if (device.device_type === 0 || device.device_type === 1) {
+            let type = await DeviceType.findById(device.device_type);
+            if (type && !type.name.includes("Gateway")) {
                 device.ble_address = createData.unicast_addr;
                 device.device_data = { value: 1 };
             }
-            else if (device.device_type === 2) { }
+            else if (type && type.name.includes("Gateway")) { }
             await device.save();
         }
     } catch (error) {
