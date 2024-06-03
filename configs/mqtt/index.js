@@ -1,6 +1,7 @@
 
 const mqtt = require('mqtt');
 import Device from '../../app/models/Device'
+import DeviceType from '../../app/models/DeviceType';
 import { handleSend } from '../../server';
 
 var options = {
