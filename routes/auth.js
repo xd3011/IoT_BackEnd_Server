@@ -211,6 +211,12 @@ router.get("/confirmAccount/:uid", authController.confirmAccount);
 // [Post] Login
 router.post("/login", authController.login);
 
+// [Post] Set Token Notification
+router.post("/setTokenNotification", verifyToken, authController.setTokenNotification);
+
+// [Post] Remove Token Notification
+router.post("/removeTokenNotification", authController.removeTokenNotification);
+
 // [Post] Refresh Token
 router.post("/refreshToken/:uid", authController.refreshToken);
 

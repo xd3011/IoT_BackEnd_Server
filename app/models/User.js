@@ -17,6 +17,7 @@ const User = new Schema(
         about: { type: String },
         photo: { type: String },
         cover: { type: String },
+        tokenNotification: [{ type: String }],
     },
     {
         timestamps: true,

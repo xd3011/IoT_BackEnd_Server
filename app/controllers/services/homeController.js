@@ -1,4 +1,5 @@
 import Home from "../../models/Home";
+import { createNotificationByServer } from "./notificationController";
 
 const createHome = async (req, res) => {
     try {
@@ -65,11 +66,16 @@ const editHome = async (req, res) => {
 const deleteHome = async (req, res) => {
     try {
         const { hid } = req.params;
-        // Assuming Home is your mongoose model
         const home = await Home.findByIdAndDelete(hid);
         if (!home) {
             return res.status(404).json({ error: "Home not found" });
         }
+        const notifications = home.user_in_home.map(uid => createNotificationByServer({
+            uid,
+            title: "Home deleted",
+            content: `Home ${home.home_name} has been deleted`
+        }));
+        await Promise.all(notifications);
         return res.status(200).json({ message: "Home deleted successfully", deletedHome: home });
     } catch (error) {
         console.error("Error deleting home:", error);

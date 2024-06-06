@@ -106,6 +106,46 @@ const login = async (req, res) => {
     }
 };
 
+const setTokenNotification = async (req, res) => {
+    try {
+        const { uid } = req.user;
+        const { tokenNotification } = req.body;
+        const user = await User.findById(uid);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        if (!user.tokenNotification.includes(tokenNotification)) {
+            user.tokenNotification.push(tokenNotification);
+            await user.save();
+        }
+        return res.status(200).json({ message: "Set Token Notification Successfully" });
+    } catch (error) {
+        console.error("Error during set token notification:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+const removeTokenNotification = async (req, res) => {
+    try {
+        const { tokenNotification, uid } = req.body;
+        const user = await User.findById(uid);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        const index = user.tokenNotification.indexOf(tokenNotification);
+        if (index > -1) {
+            user.tokenNotification.splice(index, 1);
+            await user.save();
+            return res.status(200).json({ message: "Remove Token Notification Successfully" });
+        } else {
+            return res.status(404).json({ error: "Token Notification not found" });
+        }
+    } catch (error) {
+        console.error("Error during remove token notification:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
 // [POST] Refresh Token
 const refreshToken = async (req, res) => {
     try {
@@ -236,4 +276,4 @@ const resetPassword = async (req, res) => {
     }
 }
 
-module.exports = { register, login, refreshToken, logout, editPassword, forgotPassword, confirmForgotPassword, confirmAccount, resetPassword };
+module.exports = { register, login, refreshToken, logout, editPassword, forgotPassword, confirmForgotPassword, confirmAccount, resetPassword, setTokenNotification, removeTokenNotification };

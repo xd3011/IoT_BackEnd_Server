@@ -10,7 +10,7 @@ const generateAccessToken = (user) => {
         },
         process.env.JWT_ACCESS_KEY,
         {
-            expiresIn: "1d",
+            expiresIn: "30d",
         }
     );
     return accessToken;

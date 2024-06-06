@@ -1,8 +1,7 @@
 import User from '../../models/User';
 import Home from '../../models/Home';
-import bcrypt from "bcrypt";
 import { mailSendConfirmAccount } from "../../../utils/mail";
-
+import { createNotificationByServer } from "./notificationController";
 
 const userInHome = async (req, res) => {
     try {
@@ -35,6 +34,11 @@ const addUserToHome = async (req, res) => {
         const home = await Home.findById(hid);
         home.user_in_home.push(uid);
         await home.save();
+        await createNotificationByServer({
+            uid: uid,
+            title: "Added to home",
+            content: `You have been added to home ${home.home_name}`
+        })
         return res.status(200).json({ message: "User added to home successfully", updatedHome: home });
     } catch (error) {
         console.error("Error adding user to home:", error);
@@ -44,7 +48,7 @@ const addUserToHome = async (req, res) => {
 
 const deleteUserFromHome = async (req, res) => {
     try {
-        const { uid, hid } = req.body;
+        const { uid, hid, type } = req.body;
         // Assuming Home is your mongoose model
         const home = await Home.findById(hid);
         if (home.home_owner === uid) {
@@ -54,6 +58,13 @@ const deleteUserFromHome = async (req, res) => {
         if (index !== -1) {
             home.user_in_home.splice(index, 1);
             await home.save();
+            let content = type == "remove" ? `You have left home ${home.home_name}` : `You have been removed from home ${home.home_name}`;
+            let notification = {
+                uid: uid,
+                title: "Removed from home",
+                content: content
+            }
+            await createNotificationByServer(notification);
             return res.status(200).json({ message: "User removed from home successfully", updatedHome: home });
         } else {
             return res.status(404).json({ error: "User not found in home" });
