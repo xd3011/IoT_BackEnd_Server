@@ -1,5 +1,7 @@
 import Device from "../../models/Device";
 import DeviceType from "../../models/DeviceType";
+import { getHomeById } from "./homeController";
+import { createNotificationByServer, sendNotification } from "./notificationController";
 import publisherDevice from "../devices/deviceController";
 
 const createDevice = async (req, res) => {
@@ -135,7 +137,6 @@ const changeOwnerDevice = async (req, res) => {
         if (!updatedDevice) {
             return res.status(404).json({ message: "Device not found" });
         }
-        publisherDevice.publisherChangeOwnerDevice(updatedDevice, updatedDevice.gateway_code);
         return res.status(200).json({ message: "Owner changed successfully", updatedDevice });
     } catch (error) {
         console.error("Error changing device owner:", error);
@@ -151,6 +152,17 @@ const deleteDevice = async (req, res) => {
         if (!device) {
             return res.status(404).json({ error: "Device not found" });
         }
+        const resHome = await getHomeById(device.device_in_home);
+        const notifications = resHome.user_in_home.map(uid => {
+            const notification = {
+                uid,
+                title: "Device deleted",
+                content: `Device "${device.device_name}" in "${resHome.home_name}" has been deleted`
+            }
+            createNotificationByServer(notification);
+            sendNotification(notification);
+        });
+        await Promise.all(notifications);
         publisherDevice.publisherDeleteDevice(device, device.gateway_code);
         return res.status(200).json({ message: "Device deleted successfully" });
     } catch (error) {

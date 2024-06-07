@@ -87,4 +87,14 @@ const deleteHome = async (req, res) => {
     }
 };
 
-module.exports = { createHome, getHome, editHome, deleteHome }
+const getHomeById = async (hid) => {
+    try {
+        const home = await Home.findById(hid);
+        return home;
+    } catch (error) {
+        console.error("Error fetching home by ID:", error);
+        return null;
+    }
+}
+
+module.exports = { createHome, getHome, editHome, deleteHome, getHomeById }
