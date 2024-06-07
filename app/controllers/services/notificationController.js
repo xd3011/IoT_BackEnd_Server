@@ -1,3 +1,4 @@
+import { sendNotificationByExpo } from "../../../configs/expoNotification";
 import Notification from "../../models/Notification";
 import User from "../../models/User";
 
@@ -99,4 +100,21 @@ const deleteNotification = async (req, res) => {
     }
 }
 
-module.exports = { createNotification, getNotification, editNotification, deleteNotification, createNotificationByServer }
+const sendNotification = async (data) => {
+    try {
+        const { uid, title, content } = data;
+        const user = await User.findById(uid);
+        if (!user) {
+            return false;
+        }
+        await Promise.all(user.tokenNotification.map(token =>
+            sendNotificationByExpo(token, title, content)
+        ));
+        return true;
+    } catch (error) {
+        console.error("Error during create notification by server:", error);
+        return false;
+    }
+}
+
+module.exports = { createNotification, getNotification, editNotification, deleteNotification, createNotificationByServer, sendNotification }
