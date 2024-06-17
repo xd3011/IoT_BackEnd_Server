@@ -2,7 +2,7 @@
 const mqtt = require('mqtt');
 import Device from '../../app/models/Device'
 import DeviceType from '../../app/models/DeviceType';
-import { handleSend } from '../../server';
+import { handleSend } from '../ws/index';
 
 var options = {
     host: 'broker.hivemq.com',
