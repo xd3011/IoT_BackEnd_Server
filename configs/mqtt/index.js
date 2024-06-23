@@ -3,6 +3,7 @@ const mqtt = require('mqtt');
 import Device from '../../app/models/Device'
 import DeviceType from '../../app/models/DeviceType';
 import { handleSend } from '../ws/index';
+const cron = require('node-cron');
 
 var options = {
     host: 'broker.hivemq.com',
@@ -10,11 +11,33 @@ var options = {
 }
 const client = mqtt.connect(options);
 
+const waitingDevices = {};
+
 async function mqttconnect() {
     try {
         client.on('connect', async () => {
             console.log('MQTT Connected');
-            client.subscribe(['home_iot/create', 'home_iot/state', 'home_iot/delete', 'home_iot/gatewayScan']);
+            client.subscribe(['home_iot/create', 'home_iot/state', 'home_iot/data', 'home_iot/delete', 'home_iot/gatewayScan']);
+
+            cron.schedule('*/30 * * * * *', async () => {
+                const types = await DeviceType.find({ name: { $regex: 'Gateway' } });
+                const devices = await Device.find({ device_type: { $in: types.map(type => type._id) } });
+                devices.map((device) => {
+                    const data = { action: 9 };
+                    publishDeviceMqtt(data, device.mac_address);
+                    waitingDevices[device.mac_address] = setTimeout(async () => {
+                        console.log("No response received for device", device.mac_address);
+                        device.device_online = false;
+                        device.save();
+                        const devices = await Device.find({ gateway_code: device.mac_address });
+                        devices.map((device) => {
+                            device.device_online = false;
+                            device.save();
+                        });
+                        delete waitingDevices[device.mac_address];
+                    }, 5000);
+                })
+            });
         });
 
         client.on('message', async (topic, data) => {
@@ -28,8 +51,8 @@ async function mqttconnect() {
                 case 'home_iot/state':
                     await handleState(data);
                     break;
-                case 'home_iot/control':
-                    await handleControl(data);
+                case 'home_iot/data':
+                    await handleData(data);
                     break;
                 case 'home_iot/delete':
                     await handleDelete(data);
@@ -62,6 +85,7 @@ async function handleCreate(data) {
         const device = await Device.findOne({ mac_address: createData.mac_address });
         if (device) {
             device.verify = true;
+            device.device_online = true;
             let type = await DeviceType.findById(device.device_type);
             if (type && !type.name.includes("Gateway")) {
                 device.ble_address = createData.unicast_addr;
@@ -79,13 +103,37 @@ async function handleState(data) {
     try {
         const state = data.toString();
         const stateData = JSON.parse(state);
-        const device = await Device.findById(stateData.device_id);
+        // Check if the device is in the waiting list
+        if (waitingDevices[stateData.mac_address]) {
+            clearTimeout(waitingDevices[stateData.mac_address]);
+            delete waitingDevices[stateData.mac_address];
+        }
+        // Find the device by its MAC address
+        const device = await Device.findOne({ mac_address: stateData.mac_address });
         if (device) {
-            device.online = stateData.device_online;
+            // Update the device state only if it's different or if it was in the waiting list
+            if (device.device_online !== stateData.state || waitingDevices[stateData.mac_address] !== undefined) {
+                device.device_online = stateData.state;
+                await device.save();
+            }
+        }
+    } catch (error) {
+        console.error('Error parsing or processing device state:', error);
+    }
+}
+
+async function handleData(data) {
+    try {
+        const dataUpdate = data.toString();
+        const jsonData = JSON.parse(dataUpdate);
+        const device = await Device.findOne({ mac_address: jsonData.mac_address });
+        if (device) {
+            device.device_data = jsonData.data;
+            device.device_online = true;
             await device.save();
         }
     } catch (error) {
-        console.error('Error parsing or processing state request:', error);
+        console.error('Error parsing or processing control data:', error);
     }
 }
 
@@ -102,16 +150,6 @@ async function handleDelete(data) {
         }
     } catch (error) {
         console.error('Error parsing or processing delete request:', error);
-    }
-}
-
-async function handleControl(data) {
-    try {
-        const control = data.toString();
-        const controlData = JSON.parse(control);
-        console.log('Received control data:', controlData);
-    } catch (error) {
-        console.error('Error parsing or processing control data:', error);
     }
 }
 
