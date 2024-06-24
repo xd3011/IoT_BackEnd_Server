@@ -2,8 +2,9 @@
 import { WebSocketServer } from "ws";
 import url from "url";
 
-const connectionUser = {};
+const connectionDeviceState = {};
 const connectionScanDevice = {};
+const connectionDeviceDetail = {};
 
 export const handleSend = (data) => {
     Object.keys(connectionScanDevice).forEach((uid) => {
@@ -14,13 +15,34 @@ export const handleSend = (data) => {
     });
 };
 
+export const handleSendDeviceState = (user_id, data) => {
+    Object.keys(connectionDeviceState).forEach((uid) => {
+        if (uid == user_id) {
+            const { connection } = connectionDeviceState[uid];
+            connection.send(JSON.stringify(data));
+        }
+    });
+};
+
+export const handleSendDeviceData = (device) => {
+    Object.keys(connectionDeviceDetail).forEach((uid) => {
+        const { connection, macAddress } = connectionDeviceDetail[uid];
+        if (macAddress == device.mac_address) {
+            connection.send(JSON.stringify(device));
+        }
+    });
+
+}
+
 const handleClose = (uid, action) => {
     return () => {
         if (action === 'scanDevice') {
             delete connectionScanDevice[uid];
         }
-        else if (action === 'notification') {
+        else if (action === 'deviceState') {
             delete connectionUser[uid];
+        } else if (action === 'deviceDetail') {
+            delete connectionDeviceDetail[uid];
         }
     };
 };
@@ -39,8 +61,13 @@ export const initWebSocket = (server) => {
                 connection,
                 macAddress,
             };
-        } else if (action === "notification") {
-            connectionUser[uid] = connection;
+        } else if (action === "deviceState") {
+            connectionDeviceState[uid] = { connection };
+        } else if (action === "deviceDetail") {
+            connectionDeviceDetail[uid] = {
+                connection,
+                macAddress,
+            };
         }
         connection.on('message', (message) => handleMessage(message));
         connection.on('close', () => handleClose(uid, action));

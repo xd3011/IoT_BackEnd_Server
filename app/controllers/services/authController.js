@@ -49,7 +49,6 @@ const register = async (req, res) => {
     }
 };
 
-
 const confirmAccount = async (req, res) => {
     try {
         // Extract user ID from request parameters

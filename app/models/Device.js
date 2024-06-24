@@ -13,8 +13,14 @@ const Device = new Schema(
         verify: { type: Boolean },
         device_online: { type: Boolean },
         device_type: { type: Types.ObjectId, ref: 'DeviceType' }, // Updated this line
-        device_data: { type: Object },
-        ble_address: { type: String },
+        device_data: [
+            {
+                temperature: { type: Number },
+                humidity: { type: Number },
+                timestamp: { type: Date, default: Date.now }
+            }
+        ],
+        ble_address: { type: Number },
     },
     {
         timestamps: true,

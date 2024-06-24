@@ -2,7 +2,8 @@
 const mqtt = require('mqtt');
 import Device from '../../app/models/Device'
 import DeviceType from '../../app/models/DeviceType';
-import { handleSend } from '../ws/index';
+import Home from '../../app/models/Home';
+import { handleSend, handleSendDeviceData, handleSendDeviceState } from '../ws/index';
 const cron = require('node-cron');
 
 var options = {
@@ -26,13 +27,17 @@ async function mqttconnect() {
                     const data = { action: 9 };
                     publishDeviceMqtt(data, device.mac_address);
                     waitingDevices[device.mac_address] = setTimeout(async () => {
-                        console.log("No response received for device", device.mac_address);
                         device.device_online = false;
                         device.save();
+                        handleSendState(device);
                         const devices = await Device.find({ gateway_code: device.mac_address });
                         devices.map((device) => {
-                            device.device_online = false;
-                            device.save();
+                            if (device.device_online === false) return;
+                            else {
+                                device.device_online = false;
+                                device.save();
+                                handleSendState(device);
+                            }
                         });
                         delete waitingDevices[device.mac_address];
                     }, 5000);
@@ -75,7 +80,6 @@ const handleGatewayScan = (data) => {
     } catch (error) {
         console.error('Error parsing or processing scan request:', error);
     }
-
 }
 
 async function handleCreate(data) {
@@ -103,23 +107,31 @@ async function handleState(data) {
     try {
         const state = data.toString();
         const stateData = JSON.parse(state);
-        // Check if the device is in the waiting list
         if (waitingDevices[stateData.mac_address]) {
             clearTimeout(waitingDevices[stateData.mac_address]);
             delete waitingDevices[stateData.mac_address];
         }
-        // Find the device by its MAC address
         const device = await Device.findOne({ mac_address: stateData.mac_address });
         if (device) {
-            // Update the device state only if it's different or if it was in the waiting list
             if (device.device_online !== stateData.state || waitingDevices[stateData.mac_address] !== undefined) {
                 device.device_online = stateData.state;
                 await device.save();
+                handleSendState(device);
             }
         }
     } catch (error) {
         console.error('Error parsing or processing device state:', error);
     }
+}
+
+async function handleSendState(device) {
+    const home = await Home.findById(device.device_in_home);
+    if (!home) {
+        return;
+    }
+    home.user_in_home.map((uid) => {
+        handleSendDeviceState(uid, device);
+    })
 }
 
 async function handleData(data) {
@@ -128,15 +140,20 @@ async function handleData(data) {
         const jsonData = JSON.parse(dataUpdate);
         const device = await Device.findOne({ mac_address: jsonData.mac_address });
         if (device) {
-            device.device_data = jsonData.data;
+            device.device_data.unshift({
+                temperature: jsonData.data.temperature,
+                humidity: jsonData.data.humidity,
+                timestamp: new Date()
+            });
+            device.device_data = device.device_data.slice(0, 10);
             device.device_online = true;
+            handleSendDeviceData(device);
             await device.save();
         }
     } catch (error) {
         console.error('Error parsing or processing control data:', error);
     }
 }
-
 async function handleDelete(data) {
     try {
         const deletes = data.toString();
@@ -159,7 +176,7 @@ const publishDeviceMqtt = (data, topic) => {
             console.error("Error publishing:", err);
             callback(err);
         } else {
-            console.log("Publisher Successfully!");
+            // console.log("Publisher Successfully!");
         }
     });
 }

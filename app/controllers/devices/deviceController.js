@@ -1,4 +1,5 @@
 import mqtt from "../../../configs/mqtt/index";
+import Device from "../../models/Device";
 
 const publisherCreateDevice = async (device, topic, type) => {
     try {
@@ -8,13 +9,12 @@ const publisherCreateDevice = async (device, topic, type) => {
                 device_owner: device.device_owner,
                 device_in_home: device.device_in_home,
                 device_id: device._id,
-                device_type: device.device_type,
+                device_type: "Gateway",
                 mac_address: device.mac_address,
-                // device_name: device.device_name,
             };
             await mqtt.publishDeviceMqtt(data, topic);
         }
-        else {
+        else if (type) {
             const data = {
                 action: 4,
                 addr: device.addr,
@@ -22,7 +22,7 @@ const publisherCreateDevice = async (device, topic, type) => {
                 dev_uuid: device.dev_uuid,
                 oob_info: device.oob_info,
                 bearer: device.bearer,
-                // device_name: device.device_name,
+                type: type.type.toUpperCase(),
             }
             await mqtt.publishDeviceMqtt(data, topic);
         }
@@ -34,46 +34,24 @@ const publisherCreateDevice = async (device, topic, type) => {
 
 const publisherDeleteDevice = async (device, topic) => {
     try {
-        const data = {
-            action: "delete",
-            device_owner: device.device_owner,
-            device_in_room: device.device_in_room,
-            device_id: device._id,
-            mac_address: device.mac_address,
-        };
-        await mqtt.publishDeviceMqtt(data, topic);
-    } catch (error) {
-        console.error('Error publishing delete device:', error);
-        throw error;
-    }
-}
-
-const publisherMoveDevice = async (device, topic) => {
-    try {
-        const data = {
-            action: "move",
-            device_owner: device.device_owner,
-            device_in_room: device.device_in_room,
-            device_id: device._id,
-            mac_address: device.mac_address,
+        const type = await Device.findById(device.device_type);
+        if (!type) {
+            throw new Error('Device type not found');
         }
-        await mqtt.publishDeviceMqtt(data, topic);
-    } catch (error) {
-        console.error('Error publishing delete device:', error);
-        throw error;
-    }
-}
-
-const publisherChangeOwnerDevice = async (device, topic) => {
-    try {
-        const data = {
-            action: "change_owner",
-            device_owner: device.device_owner,
-            device_in_room: device.device_in_room,
-            device_id: device._id,
-            mac_address: device.mac_address,
+        if (type.name.includes("Gateway")) {
+            const data = {
+                action: 10,
+            };
+            await mqtt.publishDeviceMqtt(data, topic);
         }
-        await mqtt.publishDeviceMqtt(data, topic);
+        else {
+            const data = {
+                action: 7,
+                addr: device.ble_address,
+                type: type.name.toUpperCase(),
+            }
+            await mqtt.publishDeviceMqtt(data, topic);
+        }
     } catch (error) {
         console.error('Error publishing delete device:', error);
         throw error;
@@ -84,7 +62,7 @@ const publisherControlDevice = async (device, topic) => {
     try {
         const data = {
             action: 5,
-            addr: device.ble_address,
+            addr: device.ble_address.toString(16),
             state: device.device_data.value,
         }
         await mqtt.publishDeviceMqtt(data, topic);
@@ -95,7 +73,6 @@ const publisherControlDevice = async (device, topic) => {
 }
 
 const publisherScanDevice = async (action, topic) => {
-    console.log('publisherScanDevice', action, topic);
     try {
         const data = {
             action: action,
@@ -110,8 +87,6 @@ const publisherScanDevice = async (action, topic) => {
 module.exports = {
     publisherCreateDevice,
     publisherDeleteDevice,
-    publisherMoveDevice,
-    publisherChangeOwnerDevice,
     publisherControlDevice,
     publisherScanDevice,
 }

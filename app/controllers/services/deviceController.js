@@ -8,7 +8,6 @@ const createDevice = async (req, res) => {
     try {
         const { uid } = req.user;
         const { hid, device_name, gateway_code, mac_address, device_type, addr_type, dev_uuid, oob_info, bearer } = req.body;
-        // Assuming Device is your mongoose model
         const newDevice = new Device({
             device_owner: uid,
             device_in_home: hid,
@@ -19,7 +18,6 @@ const createDevice = async (req, res) => {
             device_online: false,
             device_data: {}
         });
-        // Remove the declaration of the unused variable
         let type = await DeviceType.findById(device_type);
 
         if (type) {
@@ -147,23 +145,42 @@ const changeOwnerDevice = async (req, res) => {
 const deleteDevice = async (req, res) => {
     try {
         const { did } = req.params;
-        // Assuming Device is your mongoose model
-        const device = await Device.findByIdAndDelete(did);
+        const device = await Device.findById(did);
         if (!device) {
             return res.status(404).json({ error: "Device not found" });
         }
+        const type = await DeviceType.findById(device.device_type);
+        if (type.name.includes("Gateway")) {
+            const subDevices = await Device.find({ mac_address: device.mac_address });
+            if (subDevices && subDevices.length === 0) {
+                subDevices.map(async (subDevice) => {
+                    await Device.deleteOne({ _id: subDevice._id });
+                    publisherDevice.publisherDeleteDevice(subDevice, subDevice.gateway_code);
+                })
+            }
+            await publisherDevice.publisherDeleteDevice(device, device.mac_address);
+        }
         const resHome = await getHomeById(device.device_in_home);
         const notifications = resHome.user_in_home.map(uid => {
-            const notification = {
-                uid,
-                title: "Device deleted",
-                content: `Device "${device.device_name}" in "${resHome.home_name}" has been deleted`
+            let notification;
+            if (type.name.includes("Gateway")) {
+                notification = {
+                    uid,
+                    title: "Gateway deleted",
+                    content: `Gateway "${device.device_name}" in "${resHome.home_name}" has been deleted, All device in gateway are deleted`
+                }
+            }
+            else {
+                notification = {
+                    uid,
+                    title: "Device deleted",
+                    content: `Device "${device.device_name}" in "${resHome.home_name}" has been deleted`
+                }
             }
             createNotificationByServer(notification);
             sendNotification(notification);
         });
         await Promise.all(notifications);
-        publisherDevice.publisherDeleteDevice(device, device.gateway_code);
         return res.status(200).json({ message: "Device deleted successfully" });
     } catch (error) {
         console.error("Error deleting device:", error);
@@ -198,7 +215,6 @@ const deleteDeviceInRoom = async (req, res) => {
         if (result.nModified === 0) {
             return res.status(404).json({ error: "No devices found in the room" });
         }
-        // Publisher delete device in room (edit device)
         return res.status(200).json({ message: "Device_in_room field removed from all devices in the room" });
     } catch (error) {
         console.error("Error deleting device_in_room field:", error);
