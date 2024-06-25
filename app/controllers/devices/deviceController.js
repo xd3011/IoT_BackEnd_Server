@@ -63,7 +63,7 @@ const publisherControlDevice = async (device, topic) => {
         const data = {
             action: 5,
             addr: device.ble_address.toString(16),
-            state: device.device_data.value,
+            state: device.device_data[0].value,
         }
         await mqtt.publishDeviceMqtt(data, topic);
     } catch (error) {

@@ -230,7 +230,7 @@ const controlDevice = async (req, res) => {
         if (!device) {
             return res.status(404).json({ error: 'Device not found' });
         };
-        device.device_data = {
+        device.device_data[0] = {
             value: value,
         };
         device.save();

@@ -17,6 +17,7 @@ const Device = new Schema(
             {
                 temperature: { type: Number },
                 humidity: { type: Number },
+                value: { type: Number },
                 timestamp: { type: Date, default: Date.now }
             }
         ],
