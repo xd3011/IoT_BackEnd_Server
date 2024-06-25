@@ -1,12 +1,5 @@
 /**
  * @swagger
- * tags:
- *   name: User
- *   description: APIs for managing users
- */
-
-/**
- * @swagger
  * /api/user/getUserInHome/{hid}:
  *   get:
  *     summary: Get users in a home
@@ -129,7 +122,7 @@
 
 /**
  * @swagger
- * /api/user/deleteUser:
+ * /api/user/:
  *   delete:
  *     summary: Delete a user
  *     tags: [User]
@@ -157,9 +150,9 @@
 
 /**
  * @swagger
- * /api/user/createAccountAdmin:
- *   post:
- *     summary: Create an admin account
+ * /api/user/editUser:
+ *   put:
+ *     summary: Edit a user by admin
  *     tags: [User]
  *     security:
  *       - BearerAuth: []
@@ -170,17 +163,26 @@
  *           schema:
  *             type: object
  *             properties:
- *               username:
+ *               userId:
  *                 type: string
- *               password:
- *                 type: string
+ *               updates:
+ *                 type: object
+ *                 properties:
+ *                   username:
+ *                     type: string
+ *                   email:
+ *                     type: string
+ *                   etc:
+ *                     type: string
  *     responses:
  *       200:
- *         description: Admin account created successfully
+ *         description: User updated successfully
  *       401:
  *         description: Unauthorized
  *       403:
  *         description: Forbidden
+ *       404:
+ *         description: User not found
  */
 
 /**
@@ -203,6 +205,86 @@
  *     responses:
  *       200:
  *         description: User changed to admin successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: User not found
+ */
+
+/**
+ * @swagger
+ * /api/user/changeRoleToUser:
+ *   put:
+ *     summary: Change a user's role to user
+ *     tags: [User]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User role changed to user successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: User not found
+ */
+
+/**
+ * @swagger
+ * /api/user/getUserProfile:
+ *   get:
+ *     summary: Get user profile
+ *     tags: [User]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User profile retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ */
+
+/**
+ * @swagger
+ * /api/user/updateUserProfile:
+ *   put:
+ *     summary: Update user profile
+ *     tags: [User]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               updates:
+ *                 type: object
+ *                 properties:
+ *                   username:
+ *                     type: string
+ *                   email:
+ *                     type: string
+ *                   etc:
+ *                     type: string
+ *     responses:
+ *       200:
+ *         description: User profile updated successfully
  *       401:
  *         description: Unauthorized
  *       403:

@@ -151,6 +151,174 @@
  *         description: Device not found
  */
 
+/**
+ * @swagger
+ * /api/device/getDevice:
+ *   get:
+ *     summary: Get a specific device by its ID
+ *     tags: [Device]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: did
+ *         required: true
+ *         description: Device ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Device retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Device not found
+ */
+
+/**
+ * @swagger
+ * /api/device/gatewayScanDevice:
+ *   post:
+ *     summary: Scan for devices through a gateway
+ *     tags: [Device]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: did
+ *         required: true
+ *         description: Gateway Device ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Scan initiated successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Gateway device not found
+ */
+
+/**
+ * @swagger
+ * /api/device/controlDevice:
+ *   put:
+ *     summary: Control a device
+ *     tags: [Device]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: did
+ *         required: true
+ *         description: Device ID
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               action:
+ *                 type: string
+ *               value:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Device controlled successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Device not found
+ */
+
+/**
+ * @swagger
+ * /api/device/changeRoomDevice:
+ *   put:
+ *     summary: Change the room of a device
+ *     tags: [Device]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: did
+ *         required: true
+ *         description: Device ID
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               roomId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Device room changed successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Device not found
+ */
+
+/**
+ * @swagger
+ * /api/device/deleteDeviceInHome:
+ *   delete:
+ *     summary: Delete all devices in a home
+ *     tags: [Device]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: hid
+ *         required: true
+ *         description: Home ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: All devices in home deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Home not found
+ */
+
+/**
+ * @swagger
+ * /api/device/deleteDeviceInRoom:
+ *   delete:
+ *     summary: Delete all devices in a room
+ *     tags: [Device]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: rid
+ *         required: true
+ *         description: Room ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: All devices in room deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Room not found
+ */
+
 const express = require("express");
 const router = express.Router();
 import deviceController from "../app/controllers/services/deviceController"

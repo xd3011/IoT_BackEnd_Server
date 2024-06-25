@@ -7,7 +7,7 @@
 
 /**
  * @swagger
- * /api/room/create:
+ * /api/room/:
  *   post:
  *     summary: Create a new room
  *     tags: [Room]
@@ -57,7 +57,33 @@
 
 /**
  * @swagger
- * /api/room/edit/{rid}:
+ * /api/room/getDetail/{rid}:
+ *   get:
+ *     summary: Get room details
+ *     tags: [Room]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: rid
+ *         required: true
+ *         description: Room ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Room details retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Room not found
+ */
+
+/**
+ * @swagger
+ * /api/room/{rid}:
  *   put:
  *     summary: Edit an existing room
  *     tags: [Room]
@@ -92,7 +118,35 @@
 
 /**
  * @swagger
- * /api/room/delete/{rid}:
+ * /api/room/deleteRoomInHome:
+ *   delete:
+ *     summary: Delete all rooms in a home
+ *     tags: [Room]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               homeId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: All rooms in home deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Home not found
+ */
+
+/**
+ * @swagger
+ * /api/room/{rid}:
  *   delete:
  *     summary: Delete a room
  *     tags: [Room]

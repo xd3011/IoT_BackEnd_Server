@@ -7,7 +7,7 @@
 
 /**
  * @swagger
- * /api/home/create:
+ * /api/home/:
  *   post:
  *     summary: Create a new home
  *     tags: [Home]
@@ -52,7 +52,7 @@
 
 /**
  * @swagger
- * /api/home/edit/{hid}:
+ * /api/home/{hid}:
  *   put:
  *     summary: Edit an existing home
  *     tags: [Home]
@@ -89,7 +89,7 @@
 
 /**
  * @swagger
- * /api/home/delete/{hid}:
+ * /api/home/{hid}:
  *   delete:
  *     summary: Delete a home
  *     tags: [Home]
