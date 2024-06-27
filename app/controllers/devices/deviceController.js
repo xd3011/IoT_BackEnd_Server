@@ -1,5 +1,6 @@
 import mqtt from "../../../configs/mqtt/index";
 import Device from "../../models/Device";
+import DeviceType from "../../models/DeviceType";
 
 const publisherCreateDevice = async (device, topic, type) => {
     try {
@@ -34,7 +35,7 @@ const publisherCreateDevice = async (device, topic, type) => {
 
 const publisherDeleteDevice = async (device, topic) => {
     try {
-        const type = await Device.findById(device.device_type);
+        const type = await DeviceType.findById(device.device_type);
         if (!type) {
             throw new Error('Device type not found');
         }

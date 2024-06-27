@@ -157,9 +157,13 @@ const deleteDevice = async (req, res) => {
                     await Device.deleteOne({ _id: subDevice._id });
                     publisherDevice.publisherDeleteDevice(subDevice, subDevice.gateway_code);
                 })
+                await publisherDevice.publisherDeleteDevice(device, device.mac_address);
             }
-            await publisherDevice.publisherDeleteDevice(device, device.mac_address);
         }
+        else {
+            await publisherDevice.publisherDeleteDevice(device, device.gateway_code);
+        }
+        await Device.deleteOne({ _id: did });
         const resHome = await getHomeById(device.device_in_home);
         const notifications = resHome.user_in_home.map(uid => {
             let notification;
