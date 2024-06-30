@@ -19,11 +19,11 @@
 ```
 
 ### Run
-**Run In Dev**
+**1. Run In Dev**
 ```
 > npm run dev
 ```
-**Run In Production**
+**2. Run In Production**
 ```
 > npm start
 ```
