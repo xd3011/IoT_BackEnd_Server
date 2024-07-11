@@ -1,5 +1,4 @@
 import mqtt from "../../../configs/mqtt/index";
-import Device from "../../models/Device";
 import DeviceType from "../../models/DeviceType";
 
 const publisherCreateDevice = async (device, topic, type) => {
@@ -48,7 +47,7 @@ const publisherDeleteDevice = async (device, topic) => {
         else {
             const data = {
                 action: 7,
-                addr: device.ble_address,
+                addr: device.ble_address.toString(16),
                 type: type.type.toUpperCase(),
             }
             await mqtt.publishDeviceMqtt(data, topic);
