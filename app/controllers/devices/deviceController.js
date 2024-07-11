@@ -49,7 +49,7 @@ const publisherDeleteDevice = async (device, topic) => {
             const data = {
                 action: 7,
                 addr: device.ble_address,
-                type: type.name.toUpperCase(),
+                type: type.type.toUpperCase(),
             }
             await mqtt.publishDeviceMqtt(data, topic);
         }
